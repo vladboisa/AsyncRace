@@ -18,13 +18,18 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
-
+html{
+    background: url("assets/hero-image.webp") no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+}
 html, body { height: 100%; }
 body { font-family: Roboto, "Helvetica Neue", sans-serif;
   /* 1. Add accessible line-height */
   line-height: 1.5;
   /* 2. Improve text rendering */
-  -webkit-font-smoothing: antialiased; }
+  -webkit-font-smoothing: antialiased;
+ }
 ol, ul {
 	list-style: none;
 }
