@@ -12,6 +12,8 @@ body { font-family: Roboto, "Helvetica Neue", sans-serif;
  }
 ol, ul {
 	list-style: none;
+  margin: 0;
+  padding: 0;
 }
 /* 3. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
