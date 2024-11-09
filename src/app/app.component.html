@@ -1,14 +1,16 @@
 <router-outlet>
-  <nav>
-    <ul>
-      <li>
-        <a routerLink="/garage">Cars</a>
-      </li>
-      <hr />
-      <li>
-        <a routerLink="/winners">Winners</a>
-      </li>
-    </ul>
-  </nav>
+  <header>
+    <nav>
+      <ul>
+        <li>
+          <a mat-flat-button routerLink="/garage" routerLinkActive="mat-primary">Cars</a>
+        </li>
+        <hr />
+        <li>
+          <a mat-flat-button routerLink="/winners" routerLinkActive="mat-primary">Winners</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
 </router-outlet>
 
