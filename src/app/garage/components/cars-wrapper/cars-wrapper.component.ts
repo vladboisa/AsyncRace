@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CarsCardComponent } from '../../containers/cars-card/cars-card.component';
 
@@ -6,6 +6,7 @@ import { CarsCardComponent } from '../../containers/cars-card/cars-card.componen
   selector: 'app-cars-wrapper',
   standalone: true,
   imports: [MatPaginatorModule, CarsCardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="cars-wrapper">
       <app-cars-card />

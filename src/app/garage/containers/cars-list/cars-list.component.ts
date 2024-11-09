@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CarsWrapperComponent } from '../../components/cars-wrapper/cars-wrapper.component';
 import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons.component';
 
@@ -6,6 +6,7 @@ import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons
   selector: 'app-cars-list',
   standalone: true,
   imports: [CarsWrapperComponent, CarsButtonsComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main>
       <app-cars-buttons />

@@ -1,5 +1,5 @@
 import { MatInputModule } from '@angular/material/input';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   selector: 'app-cars-buttons',
   standalone: true,
   imports: [MatButtonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
       <button mat-flat-button>
