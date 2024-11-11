@@ -1,7 +1,9 @@
+:root {
+  --finish-width: 70px;
+}
 html{
     background: url("assets/hero-image.webp") no-repeat center center fixed;
     background-size: cover;
-    overflow: hidden;
 }
 html, body { height: 100%; }
 body { font-family: Roboto, "Helvetica Neue", sans-serif;
