@@ -1,0 +1,36 @@
+.cars-card {
+  margin-top: 5px;
+  display: grid;
+  grid-template-columns: 0.1fr 1fr;
+  border-bottom: 4px dashed black;
+  &-buttons {
+    display: grid;
+    grid-template-columns: max(70px) max(30px);
+    grid-gap: 3px;
+  }
+  &-track {
+    position: relative;
+    align-self: end;
+    &-name {
+      font-weight: bold;
+      text-transform: uppercase;
+      text-shadow: 1px 2px 2px #cecece;
+    }
+  }
+}
+.car {
+  position: relative;
+  transform: translateX(0vw);
+  transition: left 0.3s linear;
+}
+.finish {
+  position: absolute;
+  top: 20%;
+  right: 0;
+  width: var(--finish-width);
+}
+.cars-card {
+  @container (min-width: 1220px) {
+    grid-template-columns: 0.08fr 1fr;
+  }
+}
