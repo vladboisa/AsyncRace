@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  api: 'https://responsible-dazzling-emery.glitch.me/',
-  apiGarage: 'https://responsible-dazzling-emery.glitch.me/garage',
-  apiWinners: 'https://responsible-dazzling-emery.glitch.me/winners',
+  api: 'https://achieved-deciduous-kale.glitch.me/',
+  apiGarage: 'https://achieved-deciduous-kale.glitch.me/garage',
+  apiWinners: 'https://achieved-deciduous-kale.glitch.me/winners',
 };
