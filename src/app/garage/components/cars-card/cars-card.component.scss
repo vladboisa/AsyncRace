@@ -25,6 +25,7 @@
   position: relative;
   transform: translateX(0vw);
   transition: transform 0.3s linear;
+  filter: drop-shadow(1px 1px 3px white);
 }
 .finish {
   position: absolute;
