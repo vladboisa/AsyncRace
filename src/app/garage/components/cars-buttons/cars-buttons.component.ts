@@ -1,14 +1,24 @@
-import { MatInputModule } from '@angular/material/input';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Car } from '../../../../models/api.models';
+import { CarsService } from '../../../services/cars.service';
+import { NgIf } from '@angular/common';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
-  imports: [MatButtonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, NgIf],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
@@ -22,19 +32,72 @@ import { MatFormFieldModule } from '@angular/material/form-field';
       </button>
     </div>
     <div class="cars-buttons-create">
-      <input matInput type="text" placeholder="Create car brand" />
-      <input type="color" />
-      <button mat-flat-button>Create car</button>
+      <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
+        <input formControlName="name" required type="text" placeholder="Create car brand" />
+        <input type="color" formControlName="color" />
+        <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
+      </form>
     </div>
     <div class="cars-buttons-update">
-      <input matInput type="text" placeholder="Update car brand" />
-      <input type="color" />
-      <button mat-flat-button>Update car</button>
+      <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
+        <input formControlName="name" required type="text" placeholder="Update car brand" />
+        <input type="color" formControlName="color" />
+        <button mat-flat-button type="submit" [disabled]="!carId || updateCarForm.invalid">Update car</button>
+      </form>
     </div>
     <div class="carsButtons-generate">
-      <button mat-flat-button>Generate cars</button>
+      <button mat-flat-button (click)="generateRandomCars()">Generate cars</button>
     </div>
   </section>`,
   styleUrl: './cars-buttons.component.scss',
 })
-export class CarsButtonsComponent {}
+export class CarsButtonsComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly carsService = inject(CarsService);
+  private readonly cdRef = inject(ChangeDetectorRef);
+
+  @Input() carId: Car['id'];
+  @Input() CURRENT_PAGE: number = 1;
+  @Output() updatedTotalCarsCount = new EventEmitter();
+
+  createCarForm: FormGroup;
+  updateCarForm: FormGroup;
+  constructor() {
+    this.createCarForm = this.fb.group({
+      name: ['', Validators.required],
+      color: ['#000000'],
+    });
+    this.updateCarForm = this.fb.group({
+      name: ['', Validators.required],
+      color: ['#000000'],
+    });
+  }
+  onSubmitCreateCar() {
+    if (this.createCarForm.valid) {
+      const newCar = this.createCarForm.value as Car;
+      this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
+        this.updatedTotalCarsCount.emit(this.carsService.totalCarsCount);
+        this.cdRef.detectChanges();
+      });
+      this.createCarForm.get('name')?.reset();
+    }
+  }
+  onSubmitUpdateCar() {
+    if (this.updateCarForm.valid && this.carId) {
+      const updatedCar = { ...this.updateCarForm.value, id: this.carId } as Car;
+      this.carsService.updateCar(updatedCar).subscribe();
+      this.createCarForm.get('name')?.reset();
+    }
+  }
+  generateRandomCars() {
+    this.carsService
+      .createRandomCars()
+      .pipe(
+        switchMap(() => {
+          this.updatedTotalCarsCount.emit(this.carsService.totalCarsCount);
+          return this.carsService.readAllCars(this.CURRENT_PAGE);
+        })
+      )
+      .subscribe();
+  }
+}
