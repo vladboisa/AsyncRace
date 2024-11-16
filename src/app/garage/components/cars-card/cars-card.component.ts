@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Car } from '../../../../models/api.models';
@@ -10,20 +10,20 @@ import { Car } from '../../../../models/api.models';
   template: `
     <div class="cars-card">
       <div class="cars-card-buttons">
-        <button>Select</button>
+        <button (click)="selectCarId(carSingle.id)">Select</button>
         <button>
           <mat-icon aria-label="Play icon" inline="true" fontIcon="play_arrow"></mat-icon>
         </button>
-        <button>Remove</button>
+        <button (click)="handleDelete()">Remove</button>
         <button>
           <mat-icon aria-label="Replay icon" inline="true" fontIcon="replay"></mat-icon>
         </button>
       </div>
       <div class="cars-card-track">
-        <h5 class="cars-card-track-name">{{ car.name }}</h5>
+        <h5 class="cars-card-track-name">{{ carSingle.name }}</h5>
         <svg
           class="car"
-          [style.fill]="red"
+          [style.fill]="carSingle.color"
           xmlns="http://www.w3.org/2000/svg"
           xml:space="preserve"
           width="100"
@@ -79,9 +79,19 @@ import { Car } from '../../../../models/api.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarsCardComponent {
-  @Input() car!: Car;
-  red = 'white';
-  constructor() {
-    console.log(this.car);
+  @Input() carSingle!: Car;
+
+  @Output() emittedCarId = new EventEmitter<Car['id']>();
+  @Output() deletedCar = new EventEmitter<Car>();
+  constructor() {}
+  selectCarId(carId: Car['id']) {
+    if (carId) {
+      this.emittedCarId.emit(carId);
+    }
+  }
+  handleDelete() {
+    if (confirm(`Are you really wan't to delete ${this.carSingle.name}?`)) {
+      this.deletedCar.emit({ ...this.carSingle });
+    }
   }
 }
