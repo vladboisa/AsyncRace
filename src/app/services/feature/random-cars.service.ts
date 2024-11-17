@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Car } from '../../models/api.models';
+import { Car } from '../../../models/api.models';
 import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
