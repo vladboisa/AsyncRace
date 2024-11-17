@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Car } from '../../models/api.models';
+import { Car } from '../../../../models/api.models';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../../../environments/environment.development';
 import { BehaviorSubject, catchError, forkJoin, map, retry, switchMap, tap } from 'rxjs';
-import { ErrorsService } from './errors.service';
-import { RandomCarsService } from './random-cars.service';
+import { ErrorsService } from '../../errors.service';
+import { RandomCarsService } from '../../feature/random-cars.service';
 
 @Injectable({
   providedIn: 'root',

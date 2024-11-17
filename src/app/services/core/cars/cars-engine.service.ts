@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs';
-import { environment } from '../../environments/environment.development';
-import { ErrorsService } from './errors.service';
-import { CarEngineStatus, CarStatus, Speed } from '../../models/api.models';
+import { environment } from '../../../../environments/environment.development';
+import { ErrorsService } from '../../errors.service';
+import { CarEngineStatus, CarStatus, Speed } from '../../../../models/api.models';
 
 @Injectable({
   providedIn: 'root',

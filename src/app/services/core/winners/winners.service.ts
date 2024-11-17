@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ErrorsService } from './errors.service';
-import { Winner } from '../../models/api.models';
+import { ErrorsService } from '../../errors.service';
+import { Winner } from '../../../../models/api.models';
 import { of } from 'rxjs/internal/observable/of';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../../../environments/environment.development';
 import { tap } from 'rxjs/internal/operators/tap';
 import { retry } from 'rxjs/internal/operators/retry';
 import { catchError } from 'rxjs/internal/operators/catchError';
