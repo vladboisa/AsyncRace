@@ -4,15 +4,10 @@ export interface Car {
   id?: number;
 }
 
-export interface CarsResponse {
-  items: Car[];
-  count: string | null;
-}
-
-export interface Speed {
+export type Speed = {
   velocity: number;
   distance: number;
-}
+};
 
 export interface Winner {
   id: number;
@@ -20,14 +15,10 @@ export interface Winner {
   time: number;
   car?: Car;
 }
-export interface WinnersResponse {
-  items: Winner[];
-  count: string;
-}
 export enum CarStatus {
-  'started',
-  'stopped',
-  'drive',
+  started = 'started',
+  stopped = 'stopped',
+  drive = 'drive',
 }
 export type CarEngineStatus = {
   success: boolean;
