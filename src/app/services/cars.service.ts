@@ -59,7 +59,6 @@ export class CarsService {
           }
         }),
         switchMap(() => this.readAllCars(currentPage)),
-        tap(() => console.log('total', this.totalCarsCount)),
         retry({ count: 2, delay: 5000 }),
         catchError(this.errorsHandler.handleError)
       );
