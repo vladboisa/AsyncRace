@@ -12,7 +12,7 @@ import { CarsCardComponent } from '../cars-card/cars-card.component';
 import { Car } from '../../../../models/api.models';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { CarsService } from '../../../services/core/cars/cars.service';
-import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons.component';
+import { CarsButtonsComponent } from '../cars-buttons/cars-buttons.component';
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { ErrorsService } from '../../../services/errors.service';
 import { WinnersService } from '../../../services/core/winners/winners.service';
