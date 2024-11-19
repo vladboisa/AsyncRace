@@ -1,7 +1,23 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Speed } from './../../../../models/api.models';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+  OnDestroy,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Car } from '../../../../models/api.models';
+import { Subject } from 'rxjs/internal/Subject';
+import { CarsEngineService } from '../../../services/core/cars/cars-engine.service';
+import { catchError, Observable, of, switchMap, take, takeUntil, tap } from 'rxjs';
+import { AnimationService } from '../../../services/feature/animation.service';
+import { ErrorsService } from '../../../services/errors.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-cars-card',
@@ -11,11 +27,11 @@ import { Car } from '../../../../models/api.models';
     <div class="cars-card">
       <div class="cars-card-buttons">
         <button (click)="selectCarId(carSingle.id)">Select</button>
-        <button>
+        <button (click)="onPlayClick()" [disabled]="isPlaying">
           <mat-icon aria-label="Play icon" inline="true" fontIcon="play_arrow"></mat-icon>
         </button>
         <button (click)="handleDelete()">Remove</button>
-        <button>
+        <button (click)="onStopClick()" [disabled]="!isPlaying">
           <mat-icon aria-label="Replay icon" inline="true" fontIcon="replay"></mat-icon>
         </button>
       </div>
@@ -24,11 +40,12 @@ import { Car } from '../../../../models/api.models';
         <svg
           class="car"
           [style.fill]="carSingle.color"
+          [style.transform]="'translateX(calc(' + currentCarPosition + 'vw)'"
           xmlns="http://www.w3.org/2000/svg"
           xml:space="preserve"
-          width="100"
+          [style.width]="CAR_WIDTH"
           height="70"
-          viewBox="1 0 6.7 4"
+          viewBox="0 0 6.7 4"
         >
           <g>
             <g id="_678628480">
@@ -78,14 +95,29 @@ import { Car } from '../../../../models/api.models';
   styleUrl: './cars-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CarsCardComponent {
-  @Input() carSingle!: Car;
+export class CarsCardComponent implements OnDestroy {
+  private readonly carsEngineService = inject(CarsEngineService);
+  private readonly animationCarService = inject(AnimationService);
+  private readonly errorsService = inject(ErrorsService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
+  private readonly GRID_BUTTONS_WIDTH = 100;
+  protected readonly CAR_WIDTH = 100;
+  private destroy$ = new Subject<void>();
+
+  isPlaying = false;
+  currentCarPosition = 0;
+  animationFrame!: number;
+  @Input() carSingle!: Car;
   @Output() emittedCarId = new EventEmitter<Car['id']>();
   @Output() deletedCar = new EventEmitter<Car>();
   constructor() {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   selectCarId(carId: Car['id']) {
-    if (carId) {
+    if (this.carSingle.id) {
       this.emittedCarId.emit(carId);
     }
   }
@@ -93,5 +125,90 @@ export class CarsCardComponent {
     if (confirm(`Are you really wan't to delete ${this.carSingle.name}?`)) {
       this.deletedCar.emit({ ...this.carSingle });
     }
+  }
+
+  onPlayClick() {
+    this.isPlaying = true;
+
+    return this.carsEngineService
+      .getCarVelocity(this.carSingle.id)
+      ?.pipe(
+        take(1),
+        switchMap((speed: Speed) => this.startCarAnimation(speed)),
+        catchError((err) => {
+          this.handleAnimationError(err);
+          return of();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
+  onStopClick() {
+    if (!this.isPlaying) return;
+    this.carsEngineService
+      .stopCar(this.carSingle.id)
+      .pipe(
+        tap(() => {
+          this.animationCarService.cancelAnimation();
+          this.resetCarPosition().subscribe();
+        }),
+        catchError(this.errorsService.handleError),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
+  private startCarAnimation(speed: Speed): Observable<void> {
+    const speedMultiplier = 1500;
+    const duration = speed.distance / (speed.velocity * speedMultiplier);
+    const finishX = this.getFinishXPosition();
+    const finishPositionVW = this.calculateFinishViewportWidth(finishX);
+
+    return new Observable<void>((observer) => {
+      this.animationCarService.animateCar(
+        duration,
+        (progress) => {
+          this.currentCarPosition = progress * finishPositionVW;
+          this.cdRef.markForCheck();
+        },
+        () => {
+          observer.next();
+          observer.complete();
+        }
+      );
+    });
+  }
+  private handleAnimationError(error: HttpErrorResponse) {
+    this.isPlaying = false;
+    this.errorsService.handleEngineError(error);
+  }
+  private calculateFinishViewportWidth(finishX: number): number {
+    const distanceForTrack = finishX - this.CAR_WIDTH - this.GRID_BUTTONS_WIDTH;
+    const finish_VW_Percentage = (distanceForTrack / window.innerWidth) * 100;
+    return finish_VW_Percentage;
+  }
+  private getFinishXPosition(): number {
+    const finishElement = document.querySelector<SVGElement>('.finish');
+    if (finishElement) {
+      const finishRect = finishElement.getBoundingClientRect();
+      return finishRect.left;
+    }
+    return window.innerWidth;
+  }
+  resetCarPosition() {
+    return new Observable<void>((observer) => {
+      this.animationCarService.animateCar(
+        1,
+        () => {
+          this.currentCarPosition = 0;
+          this.cdRef.markForCheck();
+        },
+        () => {
+          this.isPlaying = false;
+          this.cdRef.markForCheck();
+          observer.next();
+          observer.complete(); // Завершаем Observable
+        }
+      );
+    });
   }
 }

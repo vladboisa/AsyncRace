@@ -11,22 +11,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Car } from '../../../../models/api.models';
-import { CarsService } from '../../../services/cars.service';
-import { NgIf } from '@angular/common';
+import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, NgIf],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
-      <button mat-flat-button>
+      <button mat-flat-button (click)="onPlayAllCars()">
         <mat-icon fontIcon="play_arrow"></mat-icon>
         Play
       </button>
-      <button mat-flat-button>
+      <button mat-flat-button (click)="onResetAllCars()">
         <mat-icon fontIcon="replay"></mat-icon>
         Reset
       </button>
@@ -58,7 +57,9 @@ export class CarsButtonsComponent {
 
   @Input() carId: Car['id'];
   @Input() CURRENT_PAGE: number = 1;
-  @Output() updatedTotalCarsCount = new EventEmitter();
+  @Output() updateTotalCarsCount = new EventEmitter();
+  @Output() startAllCars = new EventEmitter<void>();
+  @Output() resetAllCars = new EventEmitter<void>();
 
   createCarForm: FormGroup;
   updateCarForm: FormGroup;
@@ -76,7 +77,7 @@ export class CarsButtonsComponent {
     if (this.createCarForm.valid) {
       const newCar = this.createCarForm.value as Car;
       this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
-        this.updatedTotalCarsCount.emit(this.carsService.totalCarsCount);
+        this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
         this.cdRef.detectChanges();
       });
       this.createCarForm.get('name')?.reset();
@@ -94,10 +95,16 @@ export class CarsButtonsComponent {
       .createRandomCars()
       .pipe(
         switchMap(() => {
-          this.updatedTotalCarsCount.emit(this.carsService.totalCarsCount);
+          this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
           return this.carsService.readAllCars(this.CURRENT_PAGE);
         })
       )
       .subscribe();
+  }
+  onPlayAllCars() {
+    this.startAllCars.emit();
+  }
+  onResetAllCars() {
+    this.resetAllCars.emit();
   }
 }

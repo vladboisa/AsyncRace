@@ -1,10 +1,21 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CarsCardComponent } from '../../components/cars-card/cars-card.component';
 import { Car } from '../../../../models/api.models';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { CarsService } from '../../../services/cars.service';
+import { CarsService } from '../../../services/core/cars/cars.service';
 import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons.component';
+import { forkJoin } from 'rxjs/internal/observable/forkJoin';
+import { ErrorsService } from '../../../services/errors.service';
+import { of } from 'rxjs/internal/observable/of';
 
 @Component({
   selector: 'app-cars-wrapper',
@@ -14,8 +25,10 @@ import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons
   template: `
     <app-cars-buttons
       [carId]="carId"
-      (updatedTotalCarsCount)="handleUpdatedCarsCount($event)"
       [CURRENT_PAGE]="CURRENT_PAGE"
+      (updateTotalCarsCount)="handleUpdatedCarsCount($event)"
+      (startAllCars)="handleStartAllCars()"
+      (resetAllCars)="handleResetAllCars()"
     />
     <ng-container *ngIf="cars$ | async as cars">
       <section class="cars-wrapper" *ngIf="cars.length > 0; else nothing">
@@ -45,13 +58,14 @@ import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons
 export class CarsWrapperComponent implements OnInit {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
-  private LIMIT_PAGE = 7;
-
+  private readonly errorsService = inject(ErrorsService);
+  private readonly LIMIT_PAGE = 7;
   protected CURRENT_PAGE = 1;
   protected cars$ = this.carsService.cars$;
   protected carId: Car['id'];
-
   public totalCarsCount = this.carsService.totalCarsCount;
+
+  @ViewChildren(CarsCardComponent) carComponents!: QueryList<CarsCardComponent>;
   constructor() {}
   ngOnInit() {
     this.fetchCars(this.CURRENT_PAGE);
@@ -66,15 +80,37 @@ export class CarsWrapperComponent implements OnInit {
     this.carId = selectedCarId;
   }
   handleDeleteCar(car: Car) {
-    this.carsService.deleteSingleCar(car).subscribe({
-      next: () => {
-        if (this.totalCarsCount - 1 < (this.CURRENT_PAGE - 1) * this.LIMIT_PAGE) {
-          this.CURRENT_PAGE -= 1;
-        }
-      },
-      error: (err) => console.log(`Error from Delete : ${console.dir(err)}`),
+    this.carsService.deleteSingleCar(car).subscribe(() => {
+      if (this.totalCarsCount - 1 < (this.CURRENT_PAGE - 1) * this.LIMIT_PAGE) {
+        this.CURRENT_PAGE -= 1;
+      }
     });
     this.cdRef.detectChanges();
+  }
+  handleStartAllCars() {
+    const startObservables = this.carComponents.map((carComponent) => {
+      const animationStartObservable = of(carComponent.onPlayClick());
+      return animationStartObservable;
+    });
+    forkJoin(startObservables).subscribe({
+      error: (error) => console.error(error),
+    });
+  }
+  handleResetAllCars() {
+    const resetObservables = this.carComponents.map((carComponent) => {
+      return carComponent.resetCarPosition();
+    });
+    forkJoin(resetObservables).subscribe({
+      next: () => {
+        console.log('All cars reset!');
+      },
+      error: (error) => {
+        console.error('Error during reset', error);
+      },
+      complete: () => {
+        console.log('Reset completed for all cars');
+      },
+    });
   }
   onPageChange(event: PageEvent) {
     this.CURRENT_PAGE = event.pageIndex + 1;
@@ -83,7 +119,6 @@ export class CarsWrapperComponent implements OnInit {
   private fetchCars(page: number) {
     this.carsService.readAllCars(page).subscribe(() => {
       this.totalCarsCount = this.carsService.totalCarsCount;
-      console.log(this.totalCarsCount);
       this.cdRef.markForCheck();
     });
   }
