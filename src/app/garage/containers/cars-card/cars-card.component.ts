@@ -1,4 +1,4 @@
-import { Speed, Winner } from './../../../../models/api.models';
+import { Speed, Winner } from '../../../../models/api.models';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,

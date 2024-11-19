@@ -8,7 +8,7 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { CarsCardComponent } from '../../components/cars-card/cars-card.component';
+import { CarsCardComponent } from '../cars-card/cars-card.component';
 import { Car } from '../../../../models/api.models';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { CarsService } from '../../../services/core/cars/cars.service';
