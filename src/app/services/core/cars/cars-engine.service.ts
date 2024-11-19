@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError } from 'rxjs';
+import { catchError, EMPTY } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
 import { ErrorsService } from '../../errors.service';
 import { CarEngineStatus, CarStatus, Speed } from '../../../../models/api.models';
@@ -22,7 +22,7 @@ export class CarsEngineService {
           headers: this.headers,
         })
         .pipe(catchError(this.errorsHandler.handleError));
-    } else return;
+    } else return EMPTY;
   }
 
   startCar(id: number | undefined) {
@@ -30,11 +30,11 @@ export class CarsEngineService {
       .patch<CarEngineStatus>(`${environment.apiEngine}?id=${id}&status=${CarStatus.drive}`, {
         headers: this.headers,
       })
-      .pipe(catchError(this.errorsHandler.handleError));
+      .pipe(catchError(this.errorsHandler.handleEngineError));
   }
 
   stopCar(id: number | undefined) {
-    return this.http.get(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
+    return this.http.patch(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
       headers: this.headers,
     });
   }
