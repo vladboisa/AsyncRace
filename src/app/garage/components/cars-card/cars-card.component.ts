@@ -1,4 +1,4 @@
-import { Speed } from './../../../../models/api.models';
+import { Speed, Winner } from './../../../../models/api.models';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -14,10 +14,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { Car } from '../../../../models/api.models';
 import { Subject } from 'rxjs/internal/Subject';
 import { CarsEngineService } from '../../../services/core/cars/cars-engine.service';
-import { catchError, Observable, of, switchMap, take, takeUntil, tap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, take, takeUntil, tap } from 'rxjs';
 import { AnimationService } from '../../../services/feature/animation.service';
 import { ErrorsService } from '../../../services/errors.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
   selector: 'app-cars-card',
@@ -27,7 +28,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     <div class="cars-card">
       <div class="cars-card-buttons">
         <button (click)="selectCarId(carSingle.id)">Select</button>
-        <button (click)="onPlayClick()" [disabled]="isPlaying">
+        <button (click)="onPlayClick().subscribe()" [disabled]="isPlaying">
           <mat-icon aria-label="Play icon" inline="true" fontIcon="play_arrow"></mat-icon>
         </button>
         <button (click)="handleDelete()">Remove</button>
@@ -99,6 +100,8 @@ export class CarsCardComponent implements OnDestroy {
   private readonly carsEngineService = inject(CarsEngineService);
   private readonly animationCarService = inject(AnimationService);
   private readonly errorsService = inject(ErrorsService);
+  private readonly winnersService = inject(WinnersService);
+
   private readonly cdRef = inject(ChangeDetectorRef);
 
   private readonly GRID_BUTTONS_WIDTH = 100;
@@ -126,22 +129,25 @@ export class CarsCardComponent implements OnDestroy {
       this.deletedCar.emit({ ...this.carSingle });
     }
   }
-
-  onPlayClick() {
+  onPlayClick(): Observable<Winner> {
+    const startTime = Date.now();
     this.isPlaying = true;
-
-    return this.carsEngineService
-      .getCarVelocity(this.carSingle.id)
-      ?.pipe(
-        take(1),
-        switchMap((speed: Speed) => this.startCarAnimation(speed)),
-        catchError((err) => {
-          this.handleAnimationError(err);
-          return of();
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe();
+    return this.carsEngineService.getCarVelocity(this.carSingle.id)?.pipe(
+      take(1),
+      switchMap((speed: Speed) =>
+        this.startCarAnimation(speed).pipe(
+          map(() => {
+            const timeTaken = Date.now() - startTime;
+            return { car: this.carSingle, id: this.carSingle.id, success: true, time: timeTaken, wins: 1 };
+          })
+        )
+      ),
+      catchError((err) => {
+        this.handleAnimationError(err);
+        return of({ car: this.carSingle, id: this.carSingle.id, success: false, time: 0, wins: 0 });
+      }),
+      takeUntil(this.destroy$)
+    );
   }
   onStopClick() {
     if (!this.isPlaying) return;
@@ -206,7 +212,7 @@ export class CarsCardComponent implements OnDestroy {
           this.isPlaying = false;
           this.cdRef.markForCheck();
           observer.next();
-          observer.complete(); // Завершаем Observable
+          observer.complete();
         }
       );
     });

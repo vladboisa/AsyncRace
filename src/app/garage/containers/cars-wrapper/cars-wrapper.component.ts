@@ -15,7 +15,7 @@ import { CarsService } from '../../../services/core/cars/cars.service';
 import { CarsButtonsComponent } from '../../components/cars-buttons/cars-buttons.component';
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { ErrorsService } from '../../../services/errors.service';
-import { of } from 'rxjs/internal/observable/of';
+import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
   selector: 'app-cars-wrapper',
@@ -59,6 +59,7 @@ export class CarsWrapperComponent implements OnInit {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
   private readonly errorsService = inject(ErrorsService);
+  private readonly winnersService = inject(WinnersService);
   private readonly LIMIT_PAGE = 7;
   protected CURRENT_PAGE = 1;
   protected cars$ = this.carsService.cars$;
@@ -69,6 +70,7 @@ export class CarsWrapperComponent implements OnInit {
   constructor() {}
   ngOnInit() {
     this.fetchCars(this.CURRENT_PAGE);
+    this.winnersService.readAllWinners().subscribe(console.log);
   }
   trackById(index: number, name: Car) {
     return name.id;
@@ -88,27 +90,26 @@ export class CarsWrapperComponent implements OnInit {
     this.cdRef.detectChanges();
   }
   handleStartAllCars() {
-    const startObservables = this.carComponents.map((carComponent) => {
-      const animationStartObservable = of(carComponent.onPlayClick());
-      return animationStartObservable;
-    });
-    forkJoin(startObservables).subscribe({
-      error: (error) => console.error(error),
+    const raceObservables = this.carComponents.map((carComponent) => carComponent.onPlayClick());
+    forkJoin(raceObservables).subscribe((results) => {
+      const winner = this.winnersService.findMinTimeWinner(results);
+      if (winner) {
+        alert(`Winner: ${winner?.car?.name}`);
+        const winnerPayload = { id: winner?.car?.id, wins: 1, time: winner?.time };
+        this.winnersService.handleWinnerAfterRace(winnerPayload).subscribe({
+          error: (err) => console.error('Error handling winner:', err),
+        });
+      }
     });
   }
+
   handleResetAllCars() {
     const resetObservables = this.carComponents.map((carComponent) => {
       return carComponent.resetCarPosition();
     });
     forkJoin(resetObservables).subscribe({
-      next: () => {
-        console.log('All cars reset!');
-      },
       error: (error) => {
-        console.error('Error during reset', error);
-      },
-      complete: () => {
-        console.log('Reset completed for all cars');
+        console.error('Error during reset all cars', error);
       },
     });
   }
