@@ -10,9 +10,10 @@ export type Speed = {
 };
 
 export interface Winner {
-  id: number;
+  id: number | undefined;
   wins: number;
   time: number;
+  success?: boolean;
   car?: Car;
 }
 export enum CarStatus {
