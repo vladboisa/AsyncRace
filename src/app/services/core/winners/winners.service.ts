@@ -72,18 +72,20 @@ export class WinnersService {
       switchMap((winners) => {
         const existingWinner = winners.find((winner) => winner.id === winnerPayload.id);
         if (existingWinner) {
-          if (winnerPayload.time < existingWinner.time) {
-            const updatedWinner = { ...existingWinner, wins: existingWinner.wins + 1, time: winnerPayload.time };
-            return this.updateWinner(updatedWinner);
-          } else {
-            const updatedWinner = { ...existingWinner, wins: existingWinner.wins + 1 };
-            return this.updateWinner(updatedWinner);
-          }
+          const updatedWinner = this.updateWinnerIfFaster(existingWinner, winnerPayload);
+          return this.updateWinner(updatedWinner);
         } else {
           return this.createWinner(winnerPayload);
         }
       })
     );
+  }
+  private updateWinnerIfFaster(existingWinner: Winner, newWinner: Winner) {
+    if (newWinner.time < existingWinner.time) {
+      return { ...existingWinner, wins: existingWinner.wins + 1, time: newWinner.time };
+    } else {
+      return { ...existingWinner, wins: existingWinner.wins + 1 };
+    }
   }
   findMinTimeWinner(winnerArray: Winner[]) {
     if (!winnerArray || winnerArray.length === 0) {
