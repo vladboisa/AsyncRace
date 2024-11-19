@@ -1,33 +1,95 @@
-import { HttpClient } from '@angular/common/http';
+import { Winner } from './../../../../models/api.models';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ErrorsService } from '../../errors.service';
-import { Winner } from '../../../../models/api.models';
-import { of } from 'rxjs/internal/observable/of';
 import { environment } from '../../../../environments/environment.development';
 import { tap } from 'rxjs/internal/operators/tap';
 import { retry } from 'rxjs/internal/operators/retry';
 import { catchError } from 'rxjs/internal/operators/catchError';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WinnersService {
+  private winnersSubject = new BehaviorSubject<Winner[]>([]);
   winners: Winner[] = [];
+  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
   constructor(
     private http: HttpClient,
     private errorsHandler: ErrorsService
   ) {}
 
   readAllWinners() {
-    if (this.winners.length) {
-      return of(this.winners);
-    }
-    return this.http.get<Winner[]>(`${environment.apiGarage}`).pipe(
-      tap((responseCars: Winner[]) => {
-        this.winners = responseCars;
-      }),
+    return this.http.get<Winner[]>(`${environment.apiWinners}`).pipe(
+      tap((responseCars) => this.winnersSubject.next(responseCars)),
       retry({ count: 2, delay: 4000 }),
       catchError(this.errorsHandler.handleError)
     );
+  }
+  createWinner(payloadWinner: Winner) {
+    return this.http
+      .post<Winner>(`${environment.apiWinners}`, payloadWinner, {
+        headers: this.headers,
+      })
+      .pipe(
+        tap((responseWinner: Winner) => {
+          this.winnersSubject.next([...this.winnersSubject.value, responseWinner]);
+        }),
+        retry({ count: 2, delay: 4000 }),
+        catchError(this.errorsHandler.handleError)
+      );
+  }
+  deleteSingleWinner(payloadWinner: Winner) {
+    return this.http.delete(`${environment.apiWinners}/${payloadWinner?.id}`).pipe(
+      tap(() => {
+        const updatedCars = this.winnersSubject.value.filter((deletedWinner) => deletedWinner.id !== payloadWinner.id);
+        return this.winnersSubject.next(updatedCars);
+      }),
+      retry({ count: 2, delay: 5000 }),
+      catchError(this.errorsHandler.handleError)
+    );
+  }
+  updateWinner(payloadWinner: Winner) {
+    return this.http
+      .put<Winner>(`${environment.apiWinners}/${payloadWinner.id}`, payloadWinner, {
+        headers: this.headers,
+      })
+      .pipe(
+        tap((updatedWinner: Winner) => {
+          const updatedWinners = this.winnersSubject.value.map((winner) =>
+            winner.id === updatedWinner.id ? updatedWinner : winner
+          );
+          this.winnersSubject.next(updatedWinners);
+        }),
+        retry({ count: 2, delay: 4000 }),
+        catchError(this.errorsHandler.handleError)
+      );
+  }
+  handleWinnerAfterRace(winnerPayload: Winner) {
+    return this.readAllWinners().pipe(
+      switchMap((winners) => {
+        const existingWinner = winners.find((winner) => winner.id === winnerPayload.id);
+        if (existingWinner) {
+          if (winnerPayload.time < existingWinner.time) {
+            const updatedWinner = { ...existingWinner, wins: existingWinner.wins + 1, time: winnerPayload.time };
+            return this.updateWinner(updatedWinner);
+          } else {
+            const updatedWinner = { ...existingWinner, wins: existingWinner.wins + 1 };
+            return this.updateWinner(updatedWinner);
+          }
+        } else {
+          return this.createWinner(winnerPayload);
+        }
+      })
+    );
+  }
+  findMinTimeWinner(winnerArray: Winner[]) {
+    if (!winnerArray || winnerArray.length === 0) {
+      return null;
+    }
+    const minTime = Math.min(...winnerArray.map((obj) => obj.time));
+    return winnerArray.find((obj) => obj.time === minTime);
   }
 }
