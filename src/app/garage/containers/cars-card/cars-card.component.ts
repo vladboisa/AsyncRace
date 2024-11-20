@@ -114,7 +114,6 @@ export class CarsCardComponent implements OnDestroy {
   @Input() carSingle!: Car;
   @Output() emittedCarId = new EventEmitter<Car['id']>();
   @Output() deletedCar = new EventEmitter<Car>();
-  constructor() {}
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

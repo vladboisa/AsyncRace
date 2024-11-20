@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { catchError, EMPTY } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
 import { ErrorsService } from '../../errors.service';
@@ -9,11 +9,9 @@ import { CarEngineStatus, CarStatus, Speed } from '../../../../models/api.models
   providedIn: 'root',
 })
 export class CarsEngineService {
+  private readonly http = inject(HttpClient);
+  private readonly errorsHandler = inject(ErrorsService);
   private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  constructor(
-    private http: HttpClient,
-    private errorsHandler: ErrorsService
-  ) {}
 
   getCarVelocity(id: number | undefined) {
     if (id) {

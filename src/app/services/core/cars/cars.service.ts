@@ -11,17 +11,14 @@ import { RandomCarsService } from '../../feature/random-cars.service';
 })
 export class CarsService {
   private readonly randomCars = inject(RandomCarsService);
+  private readonly http = inject(HttpClient);
+  private readonly errorsHandler = inject(ErrorsService);
   private readonly LIMIT_PAGE = 7;
   private carsSubject = new BehaviorSubject<Car[]>([]);
   private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
   public totalCarsCount = 0;
   public cars$ = this.carsSubject.asObservable();
-
-  constructor(
-    private http: HttpClient,
-    private errorsHandler: ErrorsService
-  ) {}
 
   readAllCars(page: number = 1) {
     const params = new HttpParams().set('_page', page).set('_limit', this.LIMIT_PAGE);

@@ -67,7 +67,7 @@ export class CarsWrapperComponent implements OnInit {
   public totalCarsCount = this.carsService.totalCarsCount;
 
   @ViewChildren(CarsCardComponent) carComponents!: QueryList<CarsCardComponent>;
-  constructor() {}
+
   ngOnInit() {
     this.fetchCars(this.CURRENT_PAGE);
   }

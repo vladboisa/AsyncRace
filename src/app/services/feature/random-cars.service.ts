@@ -32,7 +32,6 @@ export class RandomCarsService {
     'Golf',
   ];
 
-  constructor() {}
   private generateRandomColor(): string {
     const letters = '0123456789ABCDEF';
     let color = '#';

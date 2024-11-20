@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { throwError } from 'rxjs/internal/observable/throwError';
 import { AnimationService } from './feature/animation.service';
 
@@ -7,7 +7,7 @@ import { AnimationService } from './feature/animation.service';
   providedIn: 'root',
 })
 export class ErrorsService {
-  constructor(public animationCarService: AnimationService) {}
+  private readonly animationCarService = inject(AnimationService);
   handleError(err: HttpErrorResponse) {
     if (err.error instanceof ErrorEvent) {
       console.error('Client error');

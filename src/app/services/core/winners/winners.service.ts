@@ -1,6 +1,6 @@
 import { Winner } from './../../../../models/api.models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ErrorsService } from '../../errors.service';
 import { environment } from '../../../../environments/environment.development';
 import { tap } from 'rxjs/internal/operators/tap';
@@ -13,13 +13,11 @@ import { switchMap } from 'rxjs/internal/operators/switchMap';
   providedIn: 'root',
 })
 export class WinnersService {
+  private readonly http = inject(HttpClient);
+  private readonly errorsHandler = inject(ErrorsService);
   private winnersSubject = new BehaviorSubject<Winner[]>([]);
   winners: Winner[] = [];
   private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  constructor(
-    private http: HttpClient,
-    private errorsHandler: ErrorsService
-  ) {}
 
   readAllWinners() {
     return this.http.get<Winner[]>(`${environment.apiWinners}`).pipe(
