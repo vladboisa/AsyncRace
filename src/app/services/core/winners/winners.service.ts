@@ -11,6 +11,7 @@ import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { CarsService } from '../cars/cars.service';
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { map } from 'rxjs/internal/operators/map';
+import { defaultHeaders } from '../../../../models/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,6 @@ export class WinnersService {
   private readonly carsService = inject(CarsService);
   private winnersSubject = new BehaviorSubject<Winner[]>([]);
   winners$ = this.winnersSubject.asObservable();
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
   readAllWinners() {
     return this.http.get<Winner[]>(`${environment.apiWinners}`).pipe(
@@ -39,9 +39,10 @@ export class WinnersService {
     );
   }
   createWinner(payloadWinner: Winner) {
+    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .post<Winner>(`${environment.apiWinners}`, payloadWinner, {
-        headers: this.headers,
+        headers: headers,
       })
       .pipe(
         tap((responseWinner: Winner) => {
@@ -62,9 +63,10 @@ export class WinnersService {
     );
   }
   updateWinner(payloadWinner: Winner) {
+    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .put<Winner>(`${environment.apiWinners}/${payloadWinner.id}`, payloadWinner, {
-        headers: this.headers,
+        headers: headers,
       })
       .pipe(
         tap((updatedWinner: Winner) => {

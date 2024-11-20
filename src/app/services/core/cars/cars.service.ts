@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment.development';
 import { BehaviorSubject, catchError, forkJoin, map, retry, switchMap, tap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
 import { RandomCarsService } from '../../feature/random-cars.service';
+import { defaultHeaders } from '../../../../models/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,6 @@ export class CarsService {
   private readonly errorsHandler = inject(ErrorsService);
   private readonly LIMIT_PAGE = 7;
   private carsSubject = new BehaviorSubject<Car[]>([]);
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
   public totalCarsCount = 0;
   public cars$ = this.carsSubject.asObservable();
@@ -58,9 +58,10 @@ export class CarsService {
     );
   }
   createCar(payloadCar: Car, currentPage: number = 1) {
+    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .post<Car>(`${environment.apiGarage}`, payloadCar, {
-        headers: this.headers,
+        headers: headers,
       })
       .pipe(
         tap((newCar: Car) => {
@@ -75,9 +76,10 @@ export class CarsService {
       );
   }
   updateCar(payloadCar: Car) {
+    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .put<Car>(`${environment.apiGarage}/${payloadCar.id}`, payloadCar, {
-        headers: this.headers,
+        headers: headers,
       })
       .pipe(
         tap(() => {
@@ -94,8 +96,9 @@ export class CarsService {
       );
   }
   createRandomCars() {
+    const headers = new HttpHeaders(defaultHeaders);
     const createRequests = this.randomCars.createArrayCars().map((car) => {
-      return this.http.post<Car>(`${environment.apiGarage}`, car, { headers: this.headers });
+      return this.http.post<Car>(`${environment.apiGarage}`, car, { headers: headers });
     });
     return forkJoin(createRequests).pipe(
       tap((createdCars) => {

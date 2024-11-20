@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Car } from '../../../models/api.models';
-import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RandomCarsService {
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
   private readonly CAR_BRANDS = [
     'Tesla',
     'Ford',
