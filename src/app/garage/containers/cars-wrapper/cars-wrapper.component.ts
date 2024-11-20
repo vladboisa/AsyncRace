@@ -68,7 +68,7 @@ export class CarsWrapperComponent implements OnInit {
   ngOnInit(): void {
     this.fetchCars(this.CURRENT_PAGE);
   }
-  trackById(index: number, name: Car): number | undefined {
+  trackById(_index: number, name: Car): number | undefined {
     return name.id;
   }
   handleUpdatedCarsCount(total: number): void {
