@@ -86,7 +86,7 @@ export class CarsWrapperComponent implements OnInit {
         this.CURRENT_PAGE -= 1;
       }
     });
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   }
   handleStartAllCars() {
     const raceObservables = this.carComponents.map((carComponent) => carComponent.onPlayClick());

@@ -78,7 +78,7 @@ export class CarsButtonsComponent {
       const newCar = this.createCarForm.value as Car;
       this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
         this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
-        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
       });
       this.createCarForm.get('name')?.reset();
     }
