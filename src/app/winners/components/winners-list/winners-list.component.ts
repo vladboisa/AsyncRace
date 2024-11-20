@@ -10,7 +10,7 @@ import { CarsService } from '../../../services/core/cars/cars.service';
   imports: [MatTableModule, AsyncPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <table mat-table [dataSource]="(winners$ | async) || []">
+    <table mat-table [dataSource]="(winners$ | async) || []" style="margin-top:20px">
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef>Id</th>
         <td mat-cell *matCellDef="let element">{{ element.id }}</td>
