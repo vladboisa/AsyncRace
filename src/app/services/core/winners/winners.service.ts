@@ -55,7 +55,7 @@ export class WinnersService {
     return this.http.delete(`${environment.apiWinners}/${payloadWinner?.id}`).pipe(
       tap(() => {
         const updatedCars = this.winnersSubject.value.filter((deletedWinner) => deletedWinner.id !== payloadWinner.id);
-        return this.winnersSubject.next(updatedCars);
+        this.winnersSubject.next(updatedCars);
       }),
       retry({ count: 2, delay: 5000 }),
       catchError(this.errorsHandler.handleError)

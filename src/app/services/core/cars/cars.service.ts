@@ -51,7 +51,7 @@ export class CarsService {
       tap(() => {
         const updatedCars = this.carsSubject.value.filter((deletedCar) => deletedCar.id !== payloadCar.id);
         this.totalCarsCount -= 1;
-        return this.carsSubject.next(updatedCars);
+        this.carsSubject.next(updatedCars);
       }),
       retry({ count: 2, delay: 5000 }),
       catchError(this.errorsHandler.handleError)
