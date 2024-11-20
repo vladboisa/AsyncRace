@@ -53,7 +53,6 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
       <p style="text-align: center;">No Cars here... Try to enable server</p>
     </ng-template>
   `,
-  styleUrl: './cars-wrapper.component.scss',
 })
 export class CarsWrapperComponent implements OnInit {
   private readonly carsService = inject(CarsService);

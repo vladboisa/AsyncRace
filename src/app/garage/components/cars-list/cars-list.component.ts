@@ -11,6 +11,5 @@ import { CarsWrapperComponent } from '../../containers/cars-wrapper/cars-wrapper
       <app-cars-wrapper />
     </main>
   `,
-  styleUrl: './cars-list.component.scss',
 })
 export class CarsListComponent {}

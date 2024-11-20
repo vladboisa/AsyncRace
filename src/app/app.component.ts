@@ -9,7 +9,6 @@ import { RouterModule, RouterOutlet } from '@angular/router';
   imports: [CommonModule, RouterOutlet, RouterModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   title = 'AsyncRace';

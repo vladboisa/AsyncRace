@@ -32,7 +32,6 @@ import { CarsService } from '../../../services/core/cars/cars.service';
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   `,
-  styleUrl: './winners-list.component.scss',
 })
 export class WinnersListComponent {
   readonly TIME_CONVERT_RATIO_MS = 1000;
