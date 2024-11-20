@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Car } from '../../../models/api.models';
-import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RandomCarsService {
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
   private readonly CAR_BRANDS = [
     'Tesla',
     'Ford',
@@ -32,7 +30,6 @@ export class RandomCarsService {
     'Golf',
   ];
 
-  constructor() {}
   private generateRandomColor(): string {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -46,7 +43,7 @@ export class RandomCarsService {
     const model = this.CAR_MODELS[Math.floor(Math.random() * this.CAR_MODELS.length)];
     return `${brand} ${model}`;
   }
-  createArrayCars(amount = 100) {
+  createArrayCars(amount = 100): Car[] {
     const randomCars: Car[] = Array.from({ length: amount }).map(() => ({
       name: this.generateRandomCarName(),
       color: this.generateRandomColor(),

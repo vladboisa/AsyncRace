@@ -1,41 +1,41 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { catchError, EMPTY } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, EMPTY, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.development';
 import { ErrorsService } from '../../errors.service';
 import { CarEngineStatus, CarStatus, Speed } from '../../../../models/api.models';
+import { defaultHeaders } from '../../../../models/constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarsEngineService {
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  constructor(
-    private http: HttpClient,
-    private errorsHandler: ErrorsService
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly errorsHandler = inject(ErrorsService);
 
-  getCarVelocity(id: number | undefined) {
+  getCarVelocity(id: number | undefined): Observable<Speed> {
     if (id) {
       return this.http
         .patch<Speed>(`${environment.apiEngine}?id=${id}&status=${CarStatus.started}`, {
-          headers: this.headers,
+          headers: defaultHeaders,
         })
         .pipe(catchError(this.errorsHandler.handleError));
     } else return EMPTY;
   }
 
-  startCar(id: number | undefined) {
+  startCar(id: number | undefined): Observable<CarEngineStatus> {
     return this.http
       .patch<CarEngineStatus>(`${environment.apiEngine}?id=${id}&status=${CarStatus.drive}`, {
-        headers: this.headers,
+        headers: defaultHeaders,
       })
       .pipe(catchError(this.errorsHandler.handleEngineError));
   }
 
-  stopCar(id: number | undefined) {
-    return this.http.patch(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
-      headers: this.headers,
-    });
+  stopCar(id: number | undefined): Observable<CarEngineStatus | object> {
+    return this.http
+      .patch(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
+        headers: defaultHeaders,
+      })
+      .pipe(catchError(this.errorsHandler.handleEngineError));
   }
 }

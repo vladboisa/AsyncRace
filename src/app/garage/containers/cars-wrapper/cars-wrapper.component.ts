@@ -9,12 +9,11 @@ import {
 } from '@angular/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CarsCardComponent } from '../cars-card/cars-card.component';
-import { Car } from '../../../../models/api.models';
+import { Car, Winner } from '../../../../models/api.models';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { CarsButtonsComponent } from '../cars-buttons/cars-buttons.component';
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
-import { ErrorsService } from '../../../services/errors.service';
 import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
@@ -53,12 +52,10 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
       <p style="text-align: center;">No Cars here... Try to enable server</p>
     </ng-template>
   `,
-  styleUrl: './cars-wrapper.component.scss',
 })
 export class CarsWrapperComponent implements OnInit {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
-  private readonly errorsService = inject(ErrorsService);
   private readonly winnersService = inject(WinnersService);
   private readonly LIMIT_PAGE = 7;
   protected CURRENT_PAGE = 1;
@@ -67,34 +64,34 @@ export class CarsWrapperComponent implements OnInit {
   public totalCarsCount = this.carsService.totalCarsCount;
 
   @ViewChildren(CarsCardComponent) carComponents!: QueryList<CarsCardComponent>;
-  constructor() {}
-  ngOnInit() {
+
+  ngOnInit(): void {
     this.fetchCars(this.CURRENT_PAGE);
   }
-  trackById(index: number, name: Car) {
+  trackById(_index: number, name: Car): number | undefined {
     return name.id;
   }
-  handleUpdatedCarsCount(total: number) {
+  handleUpdatedCarsCount(total: number): void {
     this.totalCarsCount = total;
   }
-  handleCarId(selectedCarId: Car['id']) {
+  handleCarId(selectedCarId: Car['id']): void {
     this.carId = selectedCarId;
   }
-  handleDeleteCar(car: Car) {
+  handleDeleteCar(car: Car): void {
     this.carsService.deleteSingleCar(car).subscribe(() => {
       if (this.totalCarsCount - 1 < (this.CURRENT_PAGE - 1) * this.LIMIT_PAGE) {
         this.CURRENT_PAGE -= 1;
       }
     });
-    this.cdRef.detectChanges();
+    this.cdRef.markForCheck();
   }
-  handleStartAllCars() {
-    const raceObservables = this.carComponents.map((carComponent) => carComponent.onPlayClick());
-    forkJoin(raceObservables).subscribe((results) => {
+  handleStartAllCars(): void {
+    const raceObservables = this.carComponents.map((carComponent: CarsCardComponent) => carComponent.onPlayClick());
+    forkJoin(raceObservables).subscribe((results: Winner[]) => {
       const winner = this.winnersService.findMinTimeWinner(results);
       if (winner) {
         alert(`Winner: ${winner?.name}`);
-        const winnerPayload = { id: winner?.id, wins: 1, time: winner?.time };
+        const winnerPayload: Winner = { id: winner?.id, wins: 1, time: winner?.time };
         this.winnersService.handleWinnerAfterRace(winnerPayload).subscribe({
           error: (err) => console.error('Error handling winner:', err),
         });
@@ -102,8 +99,8 @@ export class CarsWrapperComponent implements OnInit {
     });
   }
 
-  handleResetAllCars() {
-    const resetObservables = this.carComponents.map((carComponent) => {
+  handleResetAllCars(): void {
+    const resetObservables = this.carComponents.map((carComponent: CarsCardComponent) => {
       return carComponent.resetCarPosition();
     });
     forkJoin(resetObservables).subscribe({
@@ -112,11 +109,11 @@ export class CarsWrapperComponent implements OnInit {
       },
     });
   }
-  onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent): void {
     this.CURRENT_PAGE = event.pageIndex + 1;
     this.fetchCars(this.CURRENT_PAGE);
   }
-  private fetchCars(page: number) {
+  private fetchCars(page: number): void {
     this.carsService.readAllCars(page).subscribe(() => {
       this.totalCarsCount = this.carsService.totalCarsCount;
       this.cdRef.markForCheck();
