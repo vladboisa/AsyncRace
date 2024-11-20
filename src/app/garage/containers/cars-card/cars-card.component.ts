@@ -1,3 +1,4 @@
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Speed, Winner } from '../../../../models/api.models';
 import {
   ChangeDetectionStrategy,
@@ -7,14 +8,13 @@ import {
   Input,
   Output,
   inject,
-  OnDestroy,
+  DestroyRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Car } from '../../../../models/api.models';
-import { Subject } from 'rxjs/internal/Subject';
 import { CarsEngineService } from '../../../services/core/cars/cars-engine.service';
-import { catchError, map, Observable, of, switchMap, take, takeUntil, tap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { AnimationService } from '../../../services/feature/animation.service';
 import { ErrorsService } from '../../../services/errors.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -95,15 +95,15 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './cars-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CarsCardComponent implements OnDestroy {
+export class CarsCardComponent {
   private readonly carsEngineService = inject(CarsEngineService);
   private readonly animationCarService = inject(AnimationService);
   private readonly errorsService = inject(ErrorsService);
   private readonly cdRef = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly GRID_BUTTONS_WIDTH = 100;
   protected readonly CAR_WIDTH = 100;
-  private destroy$ = new Subject<void>();
 
   isPlaying = false;
   currentCarPosition = 0;
@@ -111,10 +111,7 @@ export class CarsCardComponent implements OnDestroy {
   @Input() carSingle!: Car;
   @Output() emittedCarId = new EventEmitter<Car['id']>();
   @Output() deletedCar = new EventEmitter<Car>();
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+
   selectCarId(carId: Car['id']) {
     if (this.carSingle.id) {
       this.emittedCarId.emit(carId);
@@ -142,7 +139,7 @@ export class CarsCardComponent implements OnDestroy {
         this.handleAnimationError(err);
         return of({ name: this.carSingle.name, id: this.carSingle.id, success: false, time: 0, wins: 0 });
       }),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     );
   }
   onStopClick() {
@@ -155,7 +152,7 @@ export class CarsCardComponent implements OnDestroy {
           this.resetCarPosition().subscribe();
         }),
         catchError(this.errorsService.handleError),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
