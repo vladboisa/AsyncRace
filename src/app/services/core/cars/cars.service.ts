@@ -32,7 +32,6 @@ export class CarsService {
       catchError(this.errorsHandler.handleError)
     );
   }
-  //TODO: Refactor func to api get car method
   findCarNameById(id: number | undefined) {
     return this.readAllCars().pipe(
       map((responseCars) => {
