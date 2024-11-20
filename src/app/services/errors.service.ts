@@ -8,6 +8,7 @@ import { AnimationService } from './feature/animation.service';
 })
 export class ErrorsService {
   private readonly animationCarService = inject(AnimationService);
+
   handleError(err: HttpErrorResponse) {
     if (err.error instanceof ErrorEvent) {
       console.error('Client error');

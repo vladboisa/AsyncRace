@@ -14,7 +14,6 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { CarsButtonsComponent } from '../cars-buttons/cars-buttons.component';
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
-import { ErrorsService } from '../../../services/errors.service';
 import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
@@ -57,7 +56,6 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
 export class CarsWrapperComponent implements OnInit {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
-  private readonly errorsService = inject(ErrorsService);
   private readonly winnersService = inject(WinnersService);
   private readonly LIMIT_PAGE = 7;
   protected CURRENT_PAGE = 1;

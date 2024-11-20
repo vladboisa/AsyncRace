@@ -18,7 +18,6 @@ import { catchError, map, Observable, of, switchMap, take, takeUntil, tap } from
 import { AnimationService } from '../../../services/feature/animation.service';
 import { ErrorsService } from '../../../services/errors.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
   selector: 'app-cars-card',
@@ -100,8 +99,6 @@ export class CarsCardComponent implements OnDestroy {
   private readonly carsEngineService = inject(CarsEngineService);
   private readonly animationCarService = inject(AnimationService);
   private readonly errorsService = inject(ErrorsService);
-  private readonly winnersService = inject(WinnersService);
-
   private readonly cdRef = inject(ChangeDetectorRef);
 
   private readonly GRID_BUTTONS_WIDTH = 100;
