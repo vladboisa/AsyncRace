@@ -70,7 +70,6 @@ export class CarsWrapperComponent implements OnInit {
   constructor() {}
   ngOnInit() {
     this.fetchCars(this.CURRENT_PAGE);
-    this.winnersService.readAllWinners().subscribe(console.log);
   }
   trackById(index: number, name: Car) {
     return name.id;
