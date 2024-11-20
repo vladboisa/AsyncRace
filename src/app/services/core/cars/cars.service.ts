@@ -38,7 +38,7 @@ export class CarsService {
       map((responseCars) => {
         const findedCarById = responseCars.find((elem: Car) => elem.id === id);
         if (findedCarById) return findedCarById.name;
-        return { name: '' };
+        return '';
       })
     );
   }

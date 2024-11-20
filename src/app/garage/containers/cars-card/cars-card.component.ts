@@ -137,13 +137,13 @@ export class CarsCardComponent implements OnDestroy {
         this.startCarAnimation(speed).pipe(
           map(() => {
             const timeTaken = Date.now() - startTime;
-            return { car: this.carSingle, id: this.carSingle.id, success: true, time: timeTaken, wins: 1 };
+            return { name: this.carSingle.name, id: this.carSingle.id, success: true, time: timeTaken, wins: 1 };
           })
         )
       ),
       catchError((err) => {
         this.handleAnimationError(err);
-        return of({ car: this.carSingle, id: this.carSingle.id, success: false, time: 0, wins: 0 });
+        return of({ name: this.carSingle.name, id: this.carSingle.id, success: false, time: 0, wins: 0 });
       }),
       takeUntil(this.destroy$)
     );
