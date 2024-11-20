@@ -21,6 +21,7 @@ export class WinnersService {
   private readonly carsService = inject(CarsService);
   private readonly http = inject(HttpClient);
   private readonly errorsHandler = inject(ErrorsService);
+  private readonly carsService = inject(CarsService);
   private winnersSubject = new BehaviorSubject<Winner[]>([]);
   winners$ = this.winnersSubject.asObservable();
   private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
