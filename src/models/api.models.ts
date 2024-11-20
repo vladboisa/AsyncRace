@@ -13,7 +13,7 @@ export interface Winner {
   id: number | undefined;
   wins: number;
   time: number;
-  name?: Car['name'];
+  name?: string;
   success?: boolean;
 }
 export enum CarStatus {
