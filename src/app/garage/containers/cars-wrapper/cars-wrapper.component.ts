@@ -93,8 +93,8 @@ export class CarsWrapperComponent implements OnInit {
     forkJoin(raceObservables).subscribe((results) => {
       const winner = this.winnersService.findMinTimeWinner(results);
       if (winner) {
-        alert(`Winner: ${winner?.car?.name}`);
-        const winnerPayload = { id: winner?.car?.id, wins: 1, time: winner?.time };
+        alert(`Winner: ${winner?.name}`);
+        const winnerPayload = { id: winner?.id, wins: 1, time: winner?.time };
         this.winnersService.handleWinnerAfterRace(winnerPayload).subscribe({
           error: (err) => console.error('Error handling winner:', err),
         });
