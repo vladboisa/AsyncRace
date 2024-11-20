@@ -55,7 +55,7 @@ export class CarsButtonsComponent {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  @Input() carId: Car['id'];
+  @Input() carId: number | undefined;
   @Input() CURRENT_PAGE: number = 1;
   @Output() updateTotalCarsCount = new EventEmitter();
   @Output() startAllCars = new EventEmitter<void>();
