@@ -158,7 +158,6 @@ export class CarsCardComponent {
           this.animationCarService.cancelAnimation();
           this.resetCarPosition().subscribe();
         }),
-        catchError(this.errorsService.handleError),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();

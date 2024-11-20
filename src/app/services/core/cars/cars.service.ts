@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Car } from '../../../../models/api.models';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment.development';
-import { BehaviorSubject, catchError, forkJoin, map, Observable, retry, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
 import { RandomCarsService } from '../../feature/random-cars.service';
 import { defaultHeaders } from '../../../../models/constants';
@@ -27,9 +27,7 @@ export class CarsService {
         this.totalCarsCount = Number(responseCars.headers.get('X-Total-Count') || 0);
         return responseCars.body || [];
       }),
-      tap((responseCars) => this.carsSubject.next(responseCars)),
-      retry({ count: 2, delay: 4000 }),
-      catchError(this.errorsHandler.handleError)
+      tap((responseCars) => this.carsSubject.next(responseCars))
     );
   }
   findCarNameById(id: number | undefined): Observable<string> {
@@ -47,15 +45,13 @@ export class CarsService {
         const updatedCars = this.carsSubject.value.filter((deletedCar) => deletedCar.id !== payloadCar.id);
         this.totalCarsCount -= 1;
         this.carsSubject.next(updatedCars);
-      }),
-      retry({ count: 2, delay: 5000 }),
-      catchError(this.errorsHandler.handleError)
+      })
     );
   }
   createCar(payloadCar: Car, currentPage: number = 1): Observable<Car[]> {
     const headers = new HttpHeaders(defaultHeaders);
     return this.http
-      .post<Car>(`${environment.apiGarage}`, payloadCar, {
+      .post<Car>(`${environment.apiGarage}124124`, payloadCar, {
         headers: headers,
       })
       .pipe(
@@ -65,9 +61,7 @@ export class CarsService {
             this.carsSubject.next([...this.carsSubject.value, newCar]);
           }
         }),
-        switchMap(() => this.readAllCars(currentPage)),
-        retry({ count: 2, delay: 5000 }),
-        catchError(this.errorsHandler.handleError)
+        switchMap(() => this.readAllCars(currentPage))
       );
   }
   updateCar(payloadCar: Car): Observable<Car> {
@@ -85,9 +79,7 @@ export class CarsService {
             return car;
           });
           this.carsSubject.next(updatedCars);
-        }),
-        retry({ count: 2, delay: 5000 }),
-        catchError(this.errorsHandler.handleError)
+        })
       );
   }
   createRandomCars(): Observable<Car[]> {
@@ -100,8 +92,7 @@ export class CarsService {
         const currentCars = this.carsSubject.value;
         this.carsSubject.next([...currentCars, ...createdCars]);
         this.totalCarsCount += createdCars.length;
-      }),
-      catchError(this.errorsHandler.handleError)
+      })
     );
   }
 }

@@ -4,8 +4,6 @@ import { inject, Injectable } from '@angular/core';
 import { ErrorsService } from '../../errors.service';
 import { environment } from '../../../../environments/environment.development';
 import { tap } from 'rxjs/internal/operators/tap';
-import { retry } from 'rxjs/internal/operators/retry';
-import { catchError } from 'rxjs/internal/operators/catchError';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { CarsService } from '../cars/cars.service';
@@ -13,7 +11,6 @@ import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { map } from 'rxjs/internal/operators/map';
 import { defaultHeaders } from '../../../../models/constants';
 import { Observable } from 'rxjs';
-
 
 @Injectable({
   providedIn: 'root',
@@ -35,9 +32,7 @@ export class WinnersService {
       }),
       tap((winnersWithCarNames) => {
         this.winnersSubject.next(winnersWithCarNames);
-      }),
-      retry({ count: 2, delay: 4000 }),
-      catchError(this.errorsHandler.handleError)
+      })
     );
   }
   createWinner(payloadWinner: Winner): Observable<Winner> {
@@ -49,9 +44,7 @@ export class WinnersService {
       .pipe(
         tap((responseWinner: Winner) => {
           this.winnersSubject.next([...this.winnersSubject.value, responseWinner]);
-        }),
-        retry({ count: 2, delay: 4000 }),
-        catchError(this.errorsHandler.handleError)
+        })
       );
   }
   deleteSingleWinner(payloadWinner: Winner): Observable<object> {
@@ -59,9 +52,7 @@ export class WinnersService {
       tap(() => {
         const updatedCars = this.winnersSubject.value.filter((deletedWinner) => deletedWinner.id !== payloadWinner.id);
         this.winnersSubject.next(updatedCars);
-      }),
-      retry({ count: 2, delay: 5000 }),
-      catchError(this.errorsHandler.handleError)
+      })
     );
   }
   updateWinner(payloadWinner: Winner): Observable<Winner> {
@@ -76,9 +67,7 @@ export class WinnersService {
             winner.id === updatedWinner.id ? updatedWinner : winner
           );
           this.winnersSubject.next(updatedWinners);
-        }),
-        retry({ count: 2, delay: 4000 }),
-        catchError(this.errorsHandler.handleError)
+        })
       );
   }
   handleWinnerAfterRace(winnerPayload: Winner): Observable<Winner> {
