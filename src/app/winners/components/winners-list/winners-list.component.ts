@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { WinnersService } from '../../../services/core/winners/winners.service';
 import { AsyncPipe } from '@angular/common';
@@ -32,9 +32,12 @@ import { AsyncPipe } from '@angular/common';
     </table>
   `,
 })
-export class WinnersListComponent {
+export class WinnersListComponent implements OnInit {
   readonly TIME_CONVERT_RATIO_MS = 1000;
   private readonly winnersService = inject(WinnersService);
   protected winners$ = this.winnersService.winners$;
   displayedColumns: string[] = ['id', 'name', 'wins', 'time'];
+  ngOnInit() {
+    this.winnersService.readAllWinners().subscribe();
+  }
 }
