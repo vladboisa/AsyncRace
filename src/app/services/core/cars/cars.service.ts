@@ -51,7 +51,7 @@ export class CarsService {
   createCar(payloadCar: Car, currentPage: number = 1): Observable<Car[]> {
     const headers = new HttpHeaders(defaultHeaders);
     return this.http
-      .post<Car>(`${environment.apiGarage}124124`, payloadCar, {
+      .post<Car>(`${environment.apiGarage}`, payloadCar, {
         headers: headers,
       })
       .pipe(
