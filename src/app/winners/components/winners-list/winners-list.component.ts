@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { WinnersCardComponent } from '../../containers/winners-card/winners-card.component';
 import { MatTableModule } from '@angular/material/table';
 import { WinnersService } from '../../../services/core/winners/winners.service';
 import { AsyncPipe } from '@angular/common';
@@ -8,7 +7,7 @@ import { CarsService } from '../../../services/core/cars/cars.service';
 @Component({
   selector: 'app-winners-list',
   standalone: true,
-  imports: [WinnersCardComponent, MatTableModule, AsyncPipe],
+  imports: [MatTableModule, AsyncPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <table mat-table [dataSource]="(winners$ | async) || []">
@@ -32,8 +31,6 @@ import { CarsService } from '../../../services/core/cars/cars.service';
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
-
-    <app-winners-card />
   `,
   styleUrl: './winners-list.component.scss',
 })

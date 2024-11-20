@@ -1,6 +1,6 @@
 import { Winner } from './../../../../models/api.models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ErrorsService } from '../../errors.service';
 import { environment } from '../../../../environments/environment.development';
 import { tap } from 'rxjs/internal/operators/tap';
@@ -8,13 +8,17 @@ import { retry } from 'rxjs/internal/operators/retry';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { CarsService } from '../cars/cars.service';
+import { forkJoin } from 'rxjs/internal/observable/forkJoin';
+import { map } from 'rxjs/internal/operators/map';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WinnersService {
+  private readonly carsService = inject(CarsService);
   private winnersSubject = new BehaviorSubject<Winner[]>([]);
-  winners: Winner[] = [];
+  winners$ = this.winnersSubject.asObservable();
   private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
   constructor(
     private http: HttpClient,
@@ -23,7 +27,15 @@ export class WinnersService {
 
   readAllWinners() {
     return this.http.get<Winner[]>(`${environment.apiWinners}`).pipe(
-      tap((responseCars) => this.winnersSubject.next(responseCars)),
+      switchMap((responseWinners) => {
+        const winnersWithCarNames$ = responseWinners.map((winner) =>
+          this.carsService.findCarNameById(winner.id).pipe(map((carName: string) => ({ ...winner, name: carName })))
+        );
+        return forkJoin(winnersWithCarNames$);
+      }),
+      tap((winnersWithCarNames) => {
+        this.winnersSubject.next(winnersWithCarNames);
+      }),
       retry({ count: 2, delay: 4000 }),
       catchError(this.errorsHandler.handleError)
     );
