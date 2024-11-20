@@ -32,20 +32,16 @@ export class CarsService {
       catchError(this.errorsHandler.handleError)
     );
   }
-  readSingleCar(id: number | undefined) {
-    return this.http
-      .get<Car>(`${environment.apiGarage}/${id}`)
-      .pipe(retry({ count: 2, delay: 4000 }), catchError(this.errorsHandler.handleError));
-  }
+  //TODO: Refactor func to api get car method
   findCarNameById(id: number | undefined) {
-    return this.readSingleCar(id).pipe(
-      map((responseCar) => {
-        if (responseCar) return responseCar.name;
+    return this.readAllCars().pipe(
+      map((responseCars) => {
+        const findedCarById = responseCars.find((elem: Car) => elem.id === id);
+        if (findedCarById) return findedCarById.name;
         return '';
       })
     );
   }
-
   deleteSingleCar(payloadCar: Car) {
     return this.http.delete(`${environment.apiGarage}/${payloadCar?.id}`).pipe(
       tap(() => {
