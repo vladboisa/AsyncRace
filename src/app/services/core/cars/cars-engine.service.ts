@@ -32,8 +32,10 @@ export class CarsEngineService {
   }
 
   stopCar(id: number | undefined) {
-    return this.http.patch(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
-      headers: this.headers,
-    });
+    return this.http
+      .patch(`${environment.apiEngine}?id=${id}&status=${CarStatus.stopped}`, {
+        headers: this.headers,
+      })
+      .pipe(catchError(this.errorsHandler.handleEngineError));
   }
 }
