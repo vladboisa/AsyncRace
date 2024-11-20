@@ -43,7 +43,7 @@ export class RandomCarsService {
     const model = this.CAR_MODELS[Math.floor(Math.random() * this.CAR_MODELS.length)];
     return `${brand} ${model}`;
   }
-  createArrayCars(amount = 100) {
+  createArrayCars(amount = 100): Car[] {
     const randomCars: Car[] = Array.from({ length: amount }).map(() => ({
       name: this.generateRandomCarName(),
       color: this.generateRandomColor(),

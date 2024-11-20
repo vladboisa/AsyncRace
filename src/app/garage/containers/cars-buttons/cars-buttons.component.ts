@@ -73,7 +73,7 @@ export class CarsButtonsComponent {
       color: ['#000000'],
     });
   }
-  onSubmitCreateCar() {
+  onSubmitCreateCar(): void {
     if (this.createCarForm.valid) {
       const newCar = this.createCarForm.value as Car;
       this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
@@ -83,14 +83,14 @@ export class CarsButtonsComponent {
       this.createCarForm.get('name')?.reset();
     }
   }
-  onSubmitUpdateCar() {
+  onSubmitUpdateCar(): void {
     if (this.updateCarForm.valid && this.carId) {
       const updatedCar = { ...this.updateCarForm.value, id: this.carId } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
       this.createCarForm.get('name')?.reset();
     }
   }
-  generateRandomCars() {
+  generateRandomCars(): void {
     this.carsService
       .createRandomCars()
       .pipe(
@@ -101,10 +101,10 @@ export class CarsButtonsComponent {
       )
       .subscribe();
   }
-  onPlayAllCars() {
+  onPlayAllCars(): void {
     this.startAllCars.emit();
   }
-  onResetAllCars() {
+  onResetAllCars(): void {
     this.resetAllCars.emit();
   }
 }

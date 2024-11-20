@@ -112,12 +112,12 @@ export class CarsCardComponent {
   @Output() emittedCarId = new EventEmitter<Car['id']>();
   @Output() deletedCar = new EventEmitter<Car>();
 
-  selectCarId(carId: Car['id']) {
+  selectCarId(carId: Car['id']): void {
     if (this.carSingle.id) {
       this.emittedCarId.emit(carId);
     }
   }
-  handleDelete() {
+  handleDelete(): void {
     if (confirm(`Are you really wan't to delete ${this.carSingle.name}?`)) {
       this.deletedCar.emit({ ...this.carSingle });
     }
@@ -129,9 +129,16 @@ export class CarsCardComponent {
       take(1),
       switchMap((speed: Speed) =>
         this.startCarAnimation(speed).pipe(
-          map(() => {
+          map((): Winner => {
             const timeTaken = Date.now() - startTime;
-            return { name: this.carSingle.name, id: this.carSingle.id, success: true, time: timeTaken, wins: 1 };
+            const winner: Winner = {
+              name: this.carSingle.name,
+              id: this.carSingle.id,
+              success: true,
+              time: timeTaken,
+              wins: 1,
+            };
+            return winner;
           })
         )
       ),
@@ -142,7 +149,7 @@ export class CarsCardComponent {
       takeUntilDestroyed(this.destroyRef)
     );
   }
-  onStopClick() {
+  onStopClick(): void {
     if (!this.isPlaying) return;
     this.carsEngineService
       .stopCar(this.carSingle.id)
@@ -176,7 +183,7 @@ export class CarsCardComponent {
       );
     });
   }
-  private handleAnimationError(error: HttpErrorResponse) {
+  private handleAnimationError(error: HttpErrorResponse): void {
     this.isPlaying = false;
     this.errorsService.handleEngineError(error);
   }
@@ -193,7 +200,7 @@ export class CarsCardComponent {
     }
     return window.innerWidth;
   }
-  resetCarPosition() {
+  resetCarPosition(): Observable<void> {
     return new Observable<void>((observer) => {
       this.animationCarService.animateCar(
         1,

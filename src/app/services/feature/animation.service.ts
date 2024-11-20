@@ -6,10 +6,10 @@ import { Injectable } from '@angular/core';
 export class AnimationService {
   private animationFrameId!: number;
 
-  animateCar(duration: number, onProgress: (progress: number) => void, onComplete: () => void) {
+  animateCar(duration: number, onProgress: (progress: number) => void, onComplete: () => void): void {
     const startTime = performance.now();
 
-    const animate = (time: number) => {
+    const animate = (time: number): void => {
       const elapsedTime = (time - startTime) / 1000;
       const progress = Math.min(elapsedTime / duration, 1);
       onProgress(progress);
@@ -21,7 +21,7 @@ export class AnimationService {
     };
     this.animationFrameId = requestAnimationFrame(animate);
   }
-  cancelAnimation() {
+  cancelAnimation(): void {
     cancelAnimationFrame(this.animationFrameId);
   }
 }

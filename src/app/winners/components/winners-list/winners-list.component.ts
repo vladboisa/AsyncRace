@@ -37,7 +37,7 @@ export class WinnersListComponent implements OnInit {
   private readonly winnersService = inject(WinnersService);
   protected winners$ = this.winnersService.winners$;
   displayedColumns: string[] = ['id', 'name', 'wins', 'time'];
-  ngOnInit() {
+  ngOnInit(): void {
     this.winnersService.readAllWinners().subscribe();
   }
 }
