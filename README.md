@@ -1,5 +1,5 @@
 
-## Checklist 340/400 pts
+## Checklist 370/400 pts
 
 ## 🚀 UI Deployment
 
@@ -27,7 +27,7 @@ https://async-race-vladboisa.netlify.app/
   - [x] Name of view ("Winners")
   - [x] Winners table
   - [ ] Pagination
-- [ ] **Persistent State (30 points):** Ensure the view state remains consistent when navigating between views. This includes preserving page numbers and input states. For example, page number shouldn't be reset, input controls should contain that they contained before switching, etc.
+- [x] **Persistent State (30 points):** Ensure the view state remains consistent when navigating between views. This includes preserving page numbers and input states. For example, page number shouldn't be reset, input controls should contain that they contained before switching, etc.
 
 ## Garage View (90 points)
 
