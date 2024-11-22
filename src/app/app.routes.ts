@@ -8,7 +8,7 @@ export const routes: Routes = [
     redirectTo: 'garage',
     pathMatch: 'full',
   },
-  { path: 'garage', component: CarsListComponent },
+  { path: 'garage', component: CarsListComponent, data: { reuse: true } },
   { path: 'winners', component: WinnersListComponent },
   { path: '**', redirectTo: 'garage' },
 ];
