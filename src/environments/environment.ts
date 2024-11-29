@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
+  production: true,
   api: 'https://achieved-deciduous-kale.glitch.me/',
   apiGarage: 'https://achieved-deciduous-kale.glitch.me/garage',
   apiWinners: 'https://achieved-deciduous-kale.glitch.me/winners',
