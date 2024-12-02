@@ -6,9 +6,7 @@ html{
     background-size: cover;
 }
 body { font-family: Roboto, "Helvetica Neue", sans-serif;
-  /* 1. Add accessible line-height */
   line-height: 1.5;
-  /* 2. Improve text rendering */
   -webkit-font-smoothing: antialiased;
  }
 ol, ul {
@@ -16,24 +14,19 @@ ol, ul {
   margin: 0;
   padding: 0;
 }
-/* 3. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
   box-sizing: border-box;
 }
-/* 4. Improve media defaults */
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
 }
-/* 5. Inherit fonts for form controls */
 input, button, textarea, select {
   font: inherit;
 }
-/* 6. Avoid text overflows */
 p, h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
 }
-/* 7. Improve line wrapping */
 p {
   text-wrap: pretty;
 }
