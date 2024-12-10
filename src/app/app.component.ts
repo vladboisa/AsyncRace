@@ -12,5 +12,5 @@ import { LoaderComponent } from './loader/loader/loader.component';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  title = 'AsyncRace';
+  title = 'Async Race game';
 }
