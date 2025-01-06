@@ -4,6 +4,7 @@ export class SimpleRouteReuseStrategy implements RouteReuseStrategy {
   private handlers = new Map<string, DetachedRouteHandle>();
 
   shouldDetach(route: ActivatedRouteSnapshot): boolean {
+    //if have reuse strategy
     return route.data?.['reuse'] || false;
   }
 
