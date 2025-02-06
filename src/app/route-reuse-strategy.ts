@@ -9,6 +9,7 @@ export class SimpleRouteReuseStrategy implements RouteReuseStrategy {
   }
 
   store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle | null): void {
+    //if have reuse strategy handle the state
     if (route.data?.['reuse']) {
       const path = route.routeConfig?.path || '';
       this.handlers.set(path, handle as DetachedRouteHandle);
