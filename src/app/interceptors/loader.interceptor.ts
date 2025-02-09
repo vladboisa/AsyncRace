@@ -4,6 +4,7 @@ import { LoaderService } from '../services/feature/loader.service';
 import { finalize } from 'rxjs/internal/operators/finalize';
 
 export const loaderInterceptor: HttpInterceptorFn = (req, next) => {
+  //after request show the Loader
   const loaderService = inject(LoaderService);
   loaderService.showLoader();
   return next(req).pipe(
