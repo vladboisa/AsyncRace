@@ -87,7 +87,7 @@ export class CarsButtonsComponent {
     if (this.updateCarForm.valid && this.carId) {
       const updatedCar = { ...this.updateCarForm.value, id: this.carId } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
-      this.createCarForm.get('name')?.reset();
+      this.updateCarForm.get('name')?.reset();
     }
   }
   generateRandomCars(): void {
