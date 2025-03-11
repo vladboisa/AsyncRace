@@ -18,7 +18,7 @@ import { switchMap } from 'rxjs';
   selector: 'app-cars-buttons',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
       <button mat-flat-button (click)="onPlayAllCars()">
