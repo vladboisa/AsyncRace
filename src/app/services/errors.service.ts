@@ -11,7 +11,7 @@ export class ErrorsService {
   private readonly animationCarService = inject(AnimationService);
 
   handleError(err: HttpErrorResponse): Observable<never> {
-    console.error(err.error instanceof ErrorEvent ? 'Client Error' : 'Server Error');
+    console.error(err.error instanceof ErrorEvent ? 'Client Error side' : 'Server Error');
     return throwError(() => new Error(err.message));
   }
   handleEngineError(err: HttpErrorResponse): Observable<never> {
