@@ -1,6 +1,7 @@
+import { defaultParams } from './../../../../models/constants';
 import { inject, Injectable } from '@angular/core';
 import { Car } from '../../../../models/api.models';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment.development';
 import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
@@ -21,7 +22,7 @@ export class CarsService {
   public cars$ = this.carsSubject.asObservable();
 
   readAllCars(page: number = 1): Observable<Car[]> {
-    const params = new HttpParams().set('_page', page).set('_limit', this.LIMIT_PAGE);
+    const params = defaultParams(page, this.LIMIT_PAGE);
     return this.http.get<Car[]>(`${environment.apiGarage}`, { params, observe: 'response' }).pipe(
       map((responseCars) => {
         this.totalCarsCount = Number(responseCars.headers.get('X-Total-Count') || 0);
