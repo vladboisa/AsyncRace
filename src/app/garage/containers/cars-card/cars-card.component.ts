@@ -186,11 +186,13 @@ export class CarsCardComponent {
     this.isPlaying = false;
     this.errorsService.handleEngineError(error);
   }
+
   private calculateFinishViewportWidth(finishX: number): number {
     const distanceForTrack = finishX - this.CAR_WIDTH - this.GRID_BUTTONS_WIDTH;
     const finish_VW_Percentage = (distanceForTrack / window.innerWidth) * 100;
     return finish_VW_Percentage;
   }
+
   private getFinishXPosition(): number {
     const finishElement = document.querySelector<SVGElement>('.finish');
     if (finishElement) {
