@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { ErrorsService } from '../../errors.service';
 import { CarEngineStatus, CarStatus, Speed } from '../../../../models/api.models';
 import { defaultHeaders } from '../../../../models/constants';

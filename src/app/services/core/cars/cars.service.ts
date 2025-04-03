@@ -2,7 +2,7 @@ import { defaultParams } from './../../../../models/constants';
 import { inject, Injectable } from '@angular/core';
 import { Car } from '../../../../models/api.models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
 import { RandomCarsService } from '../../feature/random-cars.service';
