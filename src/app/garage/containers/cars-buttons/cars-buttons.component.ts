@@ -39,7 +39,8 @@ import { switchMap } from 'rxjs';
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input formControlName="name" required type="text" placeholder="Update car brand" />
+        <label for="name" *ngIf="name">Name shoudln't be empty</label>
+        <input formControlName="name" type="text" placeholder="Update car brand" />
         <input type="color" formControlName="color" />
         <button mat-flat-button type="submit" [disabled]="!carId || updateCarForm.invalid">Update car</button>
       </form>
@@ -69,7 +70,7 @@ export class CarsButtonsComponent {
       color: ['#000000'],
     });
     this.updateCarForm = this.fb.group({
-      name: ['', Validators.required],
+      name: [''],
       color: ['#000000'],
     });
   }
@@ -84,7 +85,7 @@ export class CarsButtonsComponent {
     }
   }
   onSubmitUpdateCar(): void {
-    if (this.updateCarForm.valid && this.carId) {
+    if (this.updateCarForm.valid && this.carId && this.updateCarForm.touched) {
       const updatedCar = { ...this.updateCarForm.value, id: this.carId } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
       this.updateCarForm.get('name')?.reset();
