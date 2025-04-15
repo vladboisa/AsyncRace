@@ -9,15 +9,16 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, NgIf],
   changeDetection: ChangeDetectionStrategy.Default,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
@@ -39,8 +40,8 @@ import { switchMap } from 'rxjs';
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <label for="name" *ngIf="name">Name shoudln't be empty</label>
-        <input formControlName="name" type="text" placeholder="Update car brand" />
+        <label for="name" *ngIf="nameInput.value">Name shoudln't be empty</label>
+        <input type="text" formControlName="name" [value]="carId" placeholder="Update car brand" />
         <input type="color" formControlName="color" />
         <button mat-flat-button type="submit" [disabled]="!carId || updateCarForm.invalid">Update car</button>
       </form>
@@ -64,14 +65,18 @@ export class CarsButtonsComponent {
 
   createCarForm: FormGroup;
   updateCarForm: FormGroup;
+  nameInput: FormControl;
+  colorInput: FormControl;
   constructor() {
+    this.nameInput = new FormControl('', Validators.required);
+    this.colorInput = new FormControl('#000000');
     this.createCarForm = this.fb.group({
       name: ['', Validators.required],
       color: ['#000000'],
     });
     this.updateCarForm = this.fb.group({
-      name: [''],
-      color: ['#000000'],
+      name: this.nameInput,
+      color: this.colorInput,
     });
   }
   onSubmitCreateCar(): void {
