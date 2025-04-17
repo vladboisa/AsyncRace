@@ -26,7 +26,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   template: `
     <div class="cars-card">
       <div class="cars-card-buttons">
-        <button (click)="selectCarId(carSingle.id)">Select</button>
+        <button (click)="selectSingleCar(carSingle)">Select</button>
         <button (click)="onPlayClick().subscribe()" [disabled]="isPlaying">
           <mat-icon aria-label="Play icon" inline="true" fontIcon="play_arrow"></mat-icon>
         </button>
@@ -109,12 +109,12 @@ export class CarsCardComponent {
   currentCarPosition = 0;
   animationFrame!: number;
   @Input() carSingle!: Car;
-  @Output() emittedCarId = new EventEmitter<Car['id']>();
+  @Output() emittedCar = new EventEmitter<Car>();
   @Output() deletedCar = new EventEmitter<Car>();
 
-  selectCarId(carId: Car['id']): void {
-    if (this.carSingle.id) {
-      this.emittedCarId.emit(carId);
+  selectSingleCar(singleCar: Car): void {
+    if (this.carSingle) {
+      this.emittedCar.emit(singleCar);
     }
   }
   handleDelete(): void {

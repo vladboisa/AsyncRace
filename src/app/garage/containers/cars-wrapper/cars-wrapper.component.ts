@@ -23,7 +23,7 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-cars-buttons
-      [carId]="carId"
+      [singleCar]="singleCar"
       [CURRENT_PAGE]="CURRENT_PAGE"
       (updateTotalCarsCount)="handleUpdatedCarsCount($event)"
       (startAllCars)="handleStartAllCars()"
@@ -34,7 +34,7 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
         <app-cars-card
           *ngFor="let car of cars; trackBy: trackById"
           [carSingle]="car"
-          (emittedCarId)="handleCarId($event)"
+          (emittedCar)="handleCar($event)"
           (deletedCar)="handleDeleteCar($event)"
         />
         <mat-paginator
@@ -61,6 +61,7 @@ export class CarsWrapperComponent implements OnInit {
   protected CURRENT_PAGE = 1;
   protected cars$ = this.carsService.cars$;
   protected carId: Car['id'];
+  protected singleCar: Car | undefined;
   public totalCarsCount = this.carsService.totalCarsCount;
 
   @ViewChildren(CarsCardComponent) carComponents!: QueryList<CarsCardComponent>;
@@ -74,8 +75,8 @@ export class CarsWrapperComponent implements OnInit {
   handleUpdatedCarsCount(total: number): void {
     this.totalCarsCount = total;
   }
-  handleCarId(selectedCarId: Car['id']): void {
-    this.carId = selectedCarId;
+  handleCar(selectedCar: Car): void {
+    this.singleCar = selectedCar;
   }
   handleDeleteCar(car: Car): void {
     this.carsService.deleteSingleCar(car).subscribe(() => {
