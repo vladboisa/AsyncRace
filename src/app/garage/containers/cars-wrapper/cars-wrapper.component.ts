@@ -80,6 +80,7 @@ export class CarsWrapperComponent implements OnInit {
   }
   handleDeleteCar(car: Car): void {
     this.carsService.deleteSingleCar(car).subscribe(() => {
+      this.totalCarsCount -= 1;
       if (this.totalCarsCount - 1 < (this.CURRENT_PAGE - 1) * this.LIMIT_PAGE) {
         this.CURRENT_PAGE -= 1;
       }
