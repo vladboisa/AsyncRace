@@ -39,9 +39,9 @@ import { switchMap } from 'rxjs';
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input formControlName="name" type="text" placeholder="Update car brand" />
-        <input type="color" formControlName="color" />
-        <button mat-flat-button type="submit" [disabled]="!carId || updateCarForm.invalid">Update car</button>
+        <input formControlName="name" [value]="singleCar?.name" type="text" placeholder="Update car brand" />
+        <input type="color" [value]="singleCar?.color" formControlName="color" />
+        <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.invalid">Update car</button>
       </form>
     </div>
     <div class="carsButtons-generate">
@@ -55,7 +55,7 @@ export class CarsButtonsComponent {
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  @Input() carId: number | undefined;
+  @Input() singleCar: Car | undefined;
   @Input() CURRENT_PAGE: number = 1;
   @Output() updateTotalCarsCount = new EventEmitter();
   @Output() startAllCars = new EventEmitter<void>();
@@ -66,7 +66,7 @@ export class CarsButtonsComponent {
   nameInput: FormControl;
   colorInput: FormControl;
   constructor() {
-    this.nameInput = new FormControl('', Validators.required);
+    this.nameInput = new FormControl('');
     this.colorInput = new FormControl('#000000');
     this.createCarForm = this.fb.group({
       name: ['', Validators.required],
@@ -88,8 +88,8 @@ export class CarsButtonsComponent {
     }
   }
   onSubmitUpdateCar(): void {
-    if (this.updateCarForm.valid && this.carId && this.updateCarForm.touched) {
-      const updatedCar = { ...this.updateCarForm.value, id: this.carId } as Car;
+    if (this.updateCarForm.valid && this.singleCar && this.updateCarForm.touched) {
+      const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
       this.updateCarForm.get('name')?.reset();
     }
