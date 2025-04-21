@@ -6,6 +6,7 @@ import {
   inject,
   Input,
   Output,
+  OnChanges,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,18 +40,18 @@ import { switchMap } from 'rxjs';
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input formControlName="name" [value]="singleCar?.name" type="text" placeholder="Update car brand" />
-        <input type="color" [value]="singleCar?.color" formControlName="color" />
+        <input [formControl]="nameInput" type="text" placeholder="Update car brand" />
+        <input type="color" [value]="singleCar?.color" [formControl]="colorInput" />
         <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.invalid">Update car</button>
       </form>
     </div>
-    <div class="carsButtons-generate">
+    <div class="cars-buttons-generate">
       <button mat-flat-button (click)="generateRandomCars()">Generate cars</button>
     </div>
   </section>`,
   styleUrl: './cars-buttons.component.scss',
 })
-export class CarsButtonsComponent {
+export class CarsButtonsComponent implements OnChanges {
   private readonly fb = inject(FormBuilder);
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
@@ -66,8 +67,10 @@ export class CarsButtonsComponent {
   nameInput: FormControl;
   colorInput: FormControl;
   constructor() {
-    this.nameInput = new FormControl('');
-    this.colorInput = new FormControl('#000000');
+    this.colorInput = new FormControl(this.singleCar?.color);
+    this.nameInput = new FormControl(this.singleCar?.name, {
+      nonNullable: true,
+    });
     this.createCarForm = this.fb.group({
       name: ['', Validators.required],
       color: ['#000000'],
@@ -76,6 +79,12 @@ export class CarsButtonsComponent {
       name: this.nameInput,
       color: this.colorInput,
     });
+  }
+  ngOnChanges(): void {
+    if (this.singleCar) {
+      this.nameInput.setValue(this.singleCar.name);
+      this.colorInput.setValue(this.singleCar.color);
+    }
   }
   onSubmitCreateCar(): void {
     if (this.createCarForm.valid) {
@@ -91,7 +100,6 @@ export class CarsButtonsComponent {
     if (this.updateCarForm.valid && this.singleCar && this.updateCarForm.touched) {
       const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
-      this.updateCarForm.get('name')?.reset();
     }
   }
   generateRandomCars(): void {
