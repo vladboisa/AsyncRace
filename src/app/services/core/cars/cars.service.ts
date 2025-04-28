@@ -16,6 +16,7 @@ export class CarsService {
   private readonly http = inject(HttpClient);
   private readonly errorsHandler = inject(ErrorsService);
   private readonly LIMIT_PAGE = 7;
+  private readonly DEFAULT_HTTP_HEADERS = new HttpHeaders(defaultHeaders);
   private carsSubject = new BehaviorSubject<Car[]>([]);
 
   public totalCarsCount = 0;
@@ -50,10 +51,9 @@ export class CarsService {
     );
   }
   createCar(payloadCar: Car, currentPage: number = 1): Observable<Car[]> {
-    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .post<Car>(`${environment.apiGarage}`, payloadCar, {
-        headers: headers,
+        headers: this.DEFAULT_HTTP_HEADERS,
       })
       .pipe(
         tap((newCar: Car) => {
@@ -66,10 +66,9 @@ export class CarsService {
       );
   }
   updateCar(payloadCar: Car): Observable<Car> {
-    const headers = new HttpHeaders(defaultHeaders);
     return this.http
       .put<Car>(`${environment.apiGarage}/${payloadCar.id}`, payloadCar, {
-        headers: headers,
+        headers: this.DEFAULT_HTTP_HEADERS,
       })
       .pipe(
         tap(() => {
@@ -84,9 +83,8 @@ export class CarsService {
       );
   }
   createRandomCars(): Observable<Car[]> {
-    const headers = new HttpHeaders(defaultHeaders);
     const createRequests = this.randomCars.createArrayCars().map((car) => {
-      return this.http.post<Car>(`${environment.apiGarage}`, car, { headers: headers });
+      return this.http.post<Car>(`${environment.apiGarage}`, car, { headers: this.DEFAULT_HTTP_HEADERS });
     });
     return forkJoin(createRequests).pipe(
       tap((createdCars) => {
