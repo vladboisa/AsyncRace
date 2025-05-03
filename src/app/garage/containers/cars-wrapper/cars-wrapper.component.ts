@@ -60,7 +60,6 @@ export class CarsWrapperComponent implements OnInit {
   private readonly LIMIT_PAGE = 7;
   protected CURRENT_PAGE = 1;
   protected cars$ = this.carsService.cars$;
-  protected carId: Car['id'];
   protected singleCar: Car | undefined;
   public totalCarsCount = this.carsService.totalCarsCount;
 
@@ -85,7 +84,6 @@ export class CarsWrapperComponent implements OnInit {
         this.CURRENT_PAGE -= 1;
       }
     });
-    this.cdRef.markForCheck();
   }
   handleStartAllCars(): void {
     const raceObservables = this.carComponents.map((carComponent: CarsCardComponent) => carComponent.onPlayClick());
