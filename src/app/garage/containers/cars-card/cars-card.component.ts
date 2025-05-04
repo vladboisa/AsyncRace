@@ -29,7 +29,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     <div class="cars-card">
       <div class="cars-card-buttons">
         <button (click)="selectSingleCar(carSingle)">Select</button>
-        <button (click)="onPlayClick().subscribe()" [disabled]="isPlaying">
+        <button (click)="handleOnPlay()" [disabled]="isPlaying">
           <mat-icon aria-label="Play icon" inline="true" fontIcon="play_arrow"></mat-icon>
         </button>
         <button (click)="handleDelete()">Remove</button>
@@ -124,6 +124,9 @@ export class CarsCardComponent {
       this.deletedCar.emit({ ...this.carSingle });
     }
   }
+  handleOnPlay(): void {
+    this.onPlayClick().pipe(take(1)).subscribe();
+  }
   onPlayClick(): Observable<Winner> {
     const startTime = Date.now();
     this.isPlaying = true;
@@ -158,7 +161,7 @@ export class CarsCardComponent {
       .pipe(
         tap(() => {
           this.animationCarService.cancelAnimation();
-          this.resetCarPosition().subscribe();
+          this.resetCarPosition().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
         }),
         takeUntilDestroyed(this.destroyRef)
       )
