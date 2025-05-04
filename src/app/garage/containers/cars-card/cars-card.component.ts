@@ -9,6 +9,8 @@ import {
   Output,
   inject,
   DestroyRef,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,8 +41,8 @@ import { HttpErrorResponse } from '@angular/common/http';
         <h5 class="cars-card-track-name">{{ carSingle.name }}</h5>
         <svg
           class="car"
+          #carSvg
           [style.fill]="carSingle.color"
-          [style.transform]="'translateX(calc(' + currentCarPosition + 'vw)'"
           xmlns="http://www.w3.org/2000/svg"
           xml:space="preserve"
           [style.width]="CAR_WIDTH"
@@ -106,11 +108,11 @@ export class CarsCardComponent {
   protected readonly CAR_WIDTH = 100;
 
   isPlaying = false;
-  currentCarPosition = 0;
   animationFrame!: number;
-  @Input() carSingle!: Car;
+  @Input({ required: true }) carSingle!: Car;
   @Output() emittedCar = new EventEmitter<Car>();
   @Output() deletedCar = new EventEmitter<Car>();
+  @ViewChild('carSvg', { static: true }) carSvgRef!: ElementRef<SVGElement>;
 
   selectSingleCar(singleCar: Car): void {
     if (this.carSingle) {
@@ -172,8 +174,10 @@ export class CarsCardComponent {
       this.animationCarService.animateCar(
         duration,
         (progress) => {
-          this.currentCarPosition = progress * finishPositionVW;
-          this.cdRef.markForCheck();
+          const position = progress * finishPositionVW;
+          requestAnimationFrame(() => {
+            this.carSvgRef.nativeElement.style.transform = `translateX(${position}vw)`;
+          });
         },
         () => {
           observer.next();
@@ -206,8 +210,9 @@ export class CarsCardComponent {
       this.animationCarService.animateCar(
         1,
         () => {
-          this.currentCarPosition = 0;
-          this.cdRef.markForCheck();
+          requestAnimationFrame(() => {
+            this.carSvgRef.nativeElement.style.transform = `translateX(${0}vw)`;
+          });
         },
         () => {
           this.isPlaying = false;
