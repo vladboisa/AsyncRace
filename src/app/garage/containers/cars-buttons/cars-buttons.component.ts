@@ -42,8 +42,8 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
         <input formControlName="name" type="text" placeholder="Update car brand" />
-        <input type="color" [value]="singleCar?.color" formControlName="color" />
-        <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.invalid">Update car</button>
+        <input type="color" [value]="singleCar?.color" (change)="onColorChange($event)" />
+        <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
       </form>
     </div>
     <div class="cars-buttons-generate">
@@ -73,12 +73,9 @@ export class CarsButtonsComponent implements OnChanges {
     color: ['#000000'],
   });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['singleCar'] && this.singleCar) {
-      this.updateCarForm.patchValue({
-        name: this.singleCar.name,
-        color: this.singleCar.color,
-      });
+  ngOnChanges({ singleCar }: SimpleChanges): void {
+    if (singleCar?.currentValue) {
+      this.updateCarForm.patchValue(singleCar.currentValue);
     }
   }
   onSubmitCreateCar(): void {
@@ -96,6 +93,10 @@ export class CarsButtonsComponent implements OnChanges {
       const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
     }
+  }
+  onColorChange(event: Event): void {
+    const color = (event.target as HTMLInputElement).value;
+    this.updateCarForm.get('color')?.patchValue(color);
   }
   generateRandomCars(): void {
     this.carsService
