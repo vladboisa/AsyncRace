@@ -15,7 +15,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
-
+type changeEventColorType = 'update' | 'create';
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
@@ -35,14 +35,14 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input type="color" (change)="onCreateColorChange($event)" />
+        <input type="color" (change)="onColorChangeEvent($event, 'create')" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
       </form>
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
         <input formControlName="name" type="text" placeholder="Update car brand" />
-        <input type="color" [value]="singleCar?.color" (change)="onUpdateColorChange($event)" />
+        <input type="color" [value]="singleCar?.color" (change)="onColorChangeEvent($event, 'update')" />
         <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
       </form>
     </div>
@@ -73,11 +73,6 @@ export class CarsButtonsComponent implements OnChanges {
     color: ['#000000'],
   });
 
-  private readonly colorChangeType = {
-    update: this.updateCarForm,
-    create: this.createCarForm,
-  };
-
   ngOnChanges({ singleCar }: SimpleChanges): void {
     if (singleCar?.currentValue) {
       this.updateCarForm.patchValue(singleCar.currentValue);
@@ -99,16 +94,14 @@ export class CarsButtonsComponent implements OnChanges {
       this.carsService.updateCar(updatedCar).subscribe();
     }
   }
-  onUpdateColorChange(event: Event): void {
+  onColorChangeEvent(event: Event, type: changeEventColorType): void {
     const color = (event.target as HTMLInputElement).value;
-    this.updateCarForm.get('color')?.patchValue(color);
-  }
-  onCreateColorChange(event: Event): void {
-    const color = (event.target as HTMLInputElement).value;
-    this.createCarForm.get('color')?.setValue(color);
-  }
-  onColorChangeEvent(/* event: Event , colorChangeType = this.colorChangeType */): void {
-    //!TODO Make reusable function for colorChanging
+    if (type === 'update') {
+      this.updateCarForm.get('color')?.patchValue(color);
+    }
+    if (type === 'create') {
+      this.createCarForm.get('color')?.patchValue(color);
+    }
   }
   generateRandomCars(): void {
     this.carsService
