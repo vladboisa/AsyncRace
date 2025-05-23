@@ -15,7 +15,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
-type changeEventColorType = 'update' | 'create';
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
@@ -94,7 +93,7 @@ export class CarsButtonsComponent implements OnChanges {
       this.carsService.updateCar(updatedCar).subscribe();
     }
   }
-  onColorChangeEvent(event: Event, type: changeEventColorType): void {
+  onColorChangeEvent(event: Event, type: 'update' | 'create'): void {
     const color = (event.target as HTMLInputElement).value;
     if (type === 'update') {
       this.updateCarForm.get('color')?.patchValue(color);
