@@ -19,7 +19,7 @@ import { switchMap } from 'rxjs';
   selector: 'app-cars-buttons',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
       <button mat-flat-button (click)="onPlayAllCars()">
@@ -34,7 +34,7 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input type="color" (change)="onColorChangeEvent($event, 'create')" />
+        <input formControlName="color" type="color" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
       </form>
     </div>
@@ -100,6 +100,15 @@ export class CarsButtonsComponent implements OnChanges {
     }
     if (type === 'create') {
       this.createCarForm.get('color')?.patchValue(color);
+    }
+  }
+  onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
+    const name = (event.target as HTMLInputElement).value;
+    if (type === 'update') {
+      this.updateCarForm.get('name')?.setValue(name);
+    }
+    if (type === 'create') {
+      this.createCarForm.get('name')?.setValue(name);
     }
   }
   generateRandomCars(): void {
