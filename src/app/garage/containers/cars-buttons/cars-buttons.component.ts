@@ -34,13 +34,18 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input formControlName="color" type="color" />
+        <input (change)="onColorChangeEvent($event, 'create')" type="color" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
       </form>
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input formControlName="name" type="text" placeholder="Update car brand" />
+        <input
+          [value]="singleCar?.name"
+          (change)="onNameChangeEvent($event, 'update')"
+          type="text"
+          placeholder="Update car brand"
+        />
         <input type="color" [value]="singleCar?.color" (change)="onColorChangeEvent($event, 'update')" />
         <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
       </form>
@@ -105,10 +110,10 @@ export class CarsButtonsComponent implements OnChanges {
   onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
     const name = (event.target as HTMLInputElement).value;
     if (type === 'update') {
-      this.updateCarForm.get('name')?.setValue(name);
+      this.updateCarForm.get('name')?.patchValue(name);
     }
     if (type === 'create') {
-      this.createCarForm.get('name')?.setValue(name);
+      this.createCarForm.get('name')?.patchValue(name);
     }
   }
   generateRandomCars(): void {
