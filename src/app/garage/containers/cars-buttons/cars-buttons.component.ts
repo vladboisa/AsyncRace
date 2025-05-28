@@ -67,15 +67,21 @@ export class CarsButtonsComponent implements OnChanges {
   @Output() startAllCars = new EventEmitter<void>();
   @Output() resetAllCars = new EventEmitter<void>();
 
-  createCarForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    color: ['#000000'],
-  });
+  createCarForm: FormGroup = this.fb.group(
+    {
+      name: ['', Validators.required, { updateOn: 'change' }],
+      color: ['#000000'],
+    },
+    { updateOn: 'blur' }
+  );
 
-  updateCarForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    color: ['#000000'],
-  });
+  updateCarForm: FormGroup = this.fb.group(
+    {
+      name: ['', Validators.required],
+      color: ['#000000'],
+    },
+    { updateOn: 'submit' }
+  );
 
   ngOnChanges({ singleCar }: SimpleChanges): void {
     if (singleCar?.currentValue) {
