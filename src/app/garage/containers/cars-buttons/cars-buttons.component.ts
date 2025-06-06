@@ -15,10 +15,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
@@ -66,7 +67,6 @@ export class CarsButtonsComponent implements OnChanges {
   @Output() updateTotalCarsCount = new EventEmitter();
   @Output() startAllCars = new EventEmitter<void>();
   @Output() resetAllCars = new EventEmitter<void>();
-
   createCarForm: FormGroup = this.fb.group({
     name: this.fb.control('', {
       validators: [Validators.required],
@@ -105,23 +105,26 @@ export class CarsButtonsComponent implements OnChanges {
       const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
     }
+    this.updateCarForm.markAsUntouched();
   }
   onColorChangeEvent(event: Event, type: 'update' | 'create'): void {
     const color = (event.target as HTMLInputElement).value;
     if (type === 'update') {
-      this.updateCarForm.get('color')?.patchValue(color);
+      this.updateCarForm.get('color')?.setValue(color);
     }
     if (type === 'create') {
-      this.createCarForm.get('color')?.patchValue(color);
+      this.createCarForm.get('color')?.setValue(color);
     }
   }
   onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
     const name = (event.target as HTMLInputElement).value;
     if (type === 'update') {
-      this.updateCarForm.get('name')?.patchValue(name);
+      this.updateCarForm.get('name')?.setValue(name);
+      this.updateCarForm.markAsTouched();
     }
     if (type === 'create') {
-      this.createCarForm.get('name')?.patchValue(name);
+      this.createCarForm.get('name')?.setValue(name);
+      this.createCarForm.markAsTouched();
     }
   }
   generateRandomCars(): void {
