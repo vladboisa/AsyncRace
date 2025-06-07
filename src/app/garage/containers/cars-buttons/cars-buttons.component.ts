@@ -34,7 +34,7 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input (change)="onColorChangeEvent($event, 'create')" type="color" />
+        <input formControlName="color" type="color" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
       </form>
     </div>
@@ -67,13 +67,15 @@ export class CarsButtonsComponent implements OnChanges {
   @Output() startAllCars = new EventEmitter<void>();
   @Output() resetAllCars = new EventEmitter<void>();
 
-  createCarForm: FormGroup = this.fb.group(
-    {
-      name: ['', Validators.required, { updateOn: 'change' }],
-      color: ['#000000'],
-    },
-    { updateOn: 'blur' }
-  );
+  createCarForm: FormGroup = this.fb.group({
+    name: this.fb.control('', {
+      validators: [Validators.required],
+      updateOn: 'blur',
+    }),
+    color: this.fb.control('#000000', {
+      updateOn: 'blur',
+    }),
+  });
 
   updateCarForm: FormGroup = this.fb.group(
     {
