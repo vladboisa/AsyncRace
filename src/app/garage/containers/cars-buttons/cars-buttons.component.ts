@@ -110,21 +110,17 @@ export class CarsButtonsComponent implements OnChanges {
   onColorChangeEvent(event: Event, type: 'update' | 'create'): void {
     const color = (event.target as HTMLInputElement).value;
     if (type === 'update') {
-      this.updateCarForm.get('color')?.setValue(color);
+      this.updateCarForm.get('color')?.patchValue(color);
     }
     if (type === 'create') {
-      this.createCarForm.get('color')?.setValue(color);
+      this.createCarForm.get('color')?.patchValue(color);
     }
   }
   onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
     const name = (event.target as HTMLInputElement).value;
     if (type === 'update') {
-      this.updateCarForm.get('name')?.setValue(name);
+      this.updateCarForm.get('name')?.patchValue(name);
       this.updateCarForm.markAsTouched();
-    }
-    if (type === 'create') {
-      this.createCarForm.get('name')?.setValue(name);
-      this.createCarForm.markAsTouched();
     }
   }
   generateRandomCars(): void {
