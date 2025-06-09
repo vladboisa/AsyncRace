@@ -34,8 +34,8 @@ import { CommonModule } from '@angular/common';
     </div>
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
-        <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input formControlName="color" type="color" />
+        <input (change)="onNameChangeEvent($event, 'create')" required type="text" placeholder="Create car brand" />
+        <input (change)="onColorChangeEvent($event, 'create')" type="color" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
       </form>
     </div>
@@ -111,9 +111,11 @@ export class CarsButtonsComponent implements OnChanges {
     const color = (event.target as HTMLInputElement).value;
     if (type === 'update') {
       this.updateCarForm.get('color')?.patchValue(color);
+      this.updateCarForm.markAsTouched();
     }
     if (type === 'create') {
       this.createCarForm.get('color')?.patchValue(color);
+      this.createCarForm.markAsTouched();
     }
   }
   onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
@@ -121,6 +123,10 @@ export class CarsButtonsComponent implements OnChanges {
     if (type === 'update') {
       this.updateCarForm.get('name')?.patchValue(name);
       this.updateCarForm.markAsTouched();
+    }
+    if (type === 'create') {
+      this.createCarForm.get('name')?.patchValue(name);
+      this.createCarForm.markAsTouched();
     }
   }
   generateRandomCars(): void {
