@@ -36,7 +36,7 @@ import { CommonModule } from '@angular/common';
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input (change)="onNameChangeEvent($event, 'create')" required type="text" placeholder="Create car brand" />
         <input (change)="onColorChangeEvent($event, 'create')" type="color" />
-        <button mat-flat-button type="submit" [disabled]="createCarForm.invalid">Create car</button>
+        <button mat-flat-button type="submit" [disabled]="createCarForm.untouched">Create car</button>
       </form>
     </div>
     <div class="cars-buttons-update">
