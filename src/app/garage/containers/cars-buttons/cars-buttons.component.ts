@@ -8,13 +8,15 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
-import { switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subscription, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-cars-buttons',
@@ -34,20 +36,15 @@ import { CommonModule } from '@angular/common';
     </div>
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
-        <input (change)="onNameChangeEvent($event, 'create')" required type="text" placeholder="Create car brand" />
-        <input (change)="onColorChangeEvent($event, 'create')" type="color" />
+        <input formControlName="name" required type="text" placeholder="Create car brand" />
+        <input formControlName="color" type="color" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.untouched">Create car</button>
       </form>
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input
-          [value]="singleCar?.name"
-          (change)="onNameChangeEvent($event, 'update')"
-          type="text"
-          placeholder="Update car brand"
-        />
-        <input type="color" [value]="singleCar?.color" (change)="onColorChangeEvent($event, 'update')" />
+        <input [value]="singleCar?.name" formControlName="name" type="text" placeholder="Update car brand" />
+        <input type="color" [value]="singleCar?.color" formControlName="color" />
         <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
       </form>
     </div>
@@ -57,7 +54,7 @@ import { CommonModule } from '@angular/common';
   </section>`,
   styleUrl: './cars-buttons.component.scss',
 })
-export class CarsButtonsComponent implements OnChanges {
+export class CarsButtonsComponent implements OnChanges, OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly carsService = inject(CarsService);
   private readonly cdRef = inject(ChangeDetectorRef);
@@ -67,15 +64,13 @@ export class CarsButtonsComponent implements OnChanges {
   @Output() updateTotalCarsCount = new EventEmitter();
   @Output() startAllCars = new EventEmitter<void>();
   @Output() resetAllCars = new EventEmitter<void>();
-  createCarForm: FormGroup = this.fb.group({
-    name: this.fb.control('', {
-      validators: [Validators.required],
-      updateOn: 'blur',
-    }),
-    color: this.fb.control('#000000', {
-      updateOn: 'blur',
-    }),
-  });
+  createCarForm: FormGroup = this.fb.group(
+    {
+      name: ['', Validators.required],
+      color: ['#000000'],
+    },
+    { updateOn: 'submit' }
+  );
 
   updateCarForm: FormGroup = this.fb.group(
     {
@@ -84,50 +79,35 @@ export class CarsButtonsComponent implements OnChanges {
     },
     { updateOn: 'submit' }
   );
-
+  private readonly subscriptions = new Subscription();
+  ngOnInit(): void {}
   ngOnChanges({ singleCar }: SimpleChanges): void {
     if (singleCar?.currentValue) {
       this.updateCarForm.patchValue(singleCar.currentValue);
     }
   }
-  onSubmitCreateCar(): void {
-    if (this.createCarForm.valid) {
-      const newCar = this.createCarForm.value as Car;
-      this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
-        this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
-        this.cdRef.markForCheck();
-      });
-      this.createCarForm.get('name')?.reset();
-    }
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
+  onSubmitCreateCar(): void {
+    if (this.createCarForm.invalid) {
+      this.createCarForm.markAllAsTouched();
+      return;
+    }
+    const newCar = this.createCarForm.value as Car;
+    this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
+      this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
+      this.cdRef.markForCheck();
+      this.createCarForm.reset({ name: '', color: '#000000' });
+    });
+  }
+
   onSubmitUpdateCar(): void {
     if (this.updateCarForm.valid && this.singleCar && this.updateCarForm.touched) {
       const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
     }
     this.updateCarForm.markAsUntouched();
-  }
-  onColorChangeEvent(event: Event, type: 'update' | 'create'): void {
-    const color = (event.target as HTMLInputElement).value;
-    if (type === 'update') {
-      this.updateCarForm.get('color')?.patchValue(color);
-      this.updateCarForm.markAsTouched();
-    }
-    if (type === 'create') {
-      this.createCarForm.get('color')?.patchValue(color);
-      this.createCarForm.markAsTouched();
-    }
-  }
-  onNameChangeEvent(event: Event, type: 'update' | 'create'): void {
-    const name = (event.target as HTMLInputElement).value;
-    if (type === 'update') {
-      this.updateCarForm.get('name')?.patchValue(name);
-      this.updateCarForm.markAsTouched();
-    }
-    if (type === 'create') {
-      this.createCarForm.get('name')?.patchValue(name);
-      this.createCarForm.markAsTouched();
-    }
   }
   generateRandomCars(): void {
     this.carsService
