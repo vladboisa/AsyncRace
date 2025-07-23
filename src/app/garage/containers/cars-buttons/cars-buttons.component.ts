@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
@@ -35,14 +35,19 @@ import { CommonModule } from '@angular/common';
     <div class="cars-buttons-create">
       <form [formGroup]="createCarForm" (ngSubmit)="onSubmitCreateCar()">
         <input formControlName="name" required type="text" placeholder="Create car brand" />
-        <input formControlName="color" type="color" />
+        <input type="color" (change)="onColorChangeEvent($event, 'create')" />
         <button mat-flat-button type="submit" [disabled]="createCarForm.untouched">Create car</button>
       </form>
     </div>
     <div class="cars-buttons-update">
       <form [formGroup]="updateCarForm" (ngSubmit)="onSubmitUpdateCar()">
-        <input [value]="singleCar?.name" type="text" placeholder="Update car brand" />
-        <input type="color" [value]="singleCar?.color" />
+        <input formControlName="name" required type="text" placeholder="Update car brand" />
+        <input
+          type="color"
+          [value]="updateCarForm.get('color')?.value"
+          (change)="onColorChangeEvent($event, 'update')"
+        />
+
         <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
       </form>
     </div>
@@ -67,22 +72,25 @@ export class CarsButtonsComponent implements OnChanges {
     color: new FormControl('#000', { updateOn: 'blur' }),
   });
 
-  updateCarForm: FormGroup = this.fb.group(
-    {
-      name: ['', Validators.required],
-      color: ['#000000'],
-    },
-    { updateOn: 'submit' }
-  );
+  updateCarForm: FormGroup = this.fb.group({
+    name: new FormControl('', { updateOn: 'blur' }),
+    color: new FormControl('#000000', { updateOn: 'blur' }),
+  });
+
   ngOnChanges({ singleCar }: SimpleChanges): void {
     if (singleCar?.currentValue) {
       this.updateCarForm.patchValue(singleCar.currentValue);
     }
   }
+  onColorChangeEvent(event: Event, changeEventType: 'update' | 'create'): void {
+    const color = (event.target as HTMLInputElement).value;
+    const form = changeEventType === 'update' ? this.updateCarForm : this.createCarForm;
+    form.get('color')?.patchValue(color);
+    form.markAsTouched();
+  }
   onSubmitCreateCar(): void {
     if (this.createCarForm.invalid) {
       this.createCarForm.markAllAsTouched();
-      return;
     }
     const newCar = this.createCarForm.value as Car;
     this.carsService.createCar(newCar, this.CURRENT_PAGE).subscribe(() => {
