@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  api: 'https://achieved-deciduous-kale.glitch.me/',
-  apiGarage: 'https://achieved-deciduous-kale.glitch.me/garage',
-  apiWinners: 'https://achieved-deciduous-kale.glitch.me/winners',
-  apiEngine: 'https://achieved-deciduous-kale.glitch.me/engine',
+  api: 'https://async-race-api-e6uz.onrender.com/',
+  apiGarage: 'https://async-race-api-e6uz.onrender.com/garage',
+  apiWinners: 'https://async-race-api-e6uz.onrender.com/winners',
+  apiEngine: 'https://async-race-api-e6uz.onrender.com/engine',
 };
