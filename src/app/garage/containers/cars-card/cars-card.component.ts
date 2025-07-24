@@ -20,6 +20,7 @@ import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { AnimationService } from '../../../services/feature/animation.service';
 import { ErrorsService } from '../../../services/errors.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { WinnersService } from '../../../services/core/winners/winners.service';
 
 @Component({
   selector: 'app-cars-card',
@@ -100,6 +101,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class CarsCardComponent {
   private readonly carsEngineService = inject(CarsEngineService);
   private readonly animationCarService = inject(AnimationService);
+  private readonly winnersService = inject(WinnersService);
   private readonly errorsService = inject(ErrorsService);
   private readonly cdRef = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -143,6 +145,9 @@ export class CarsCardComponent {
               time: timeTaken,
               wins: 1,
             };
+            this.winnersService.handleWinnerAfterRace(winner).subscribe({
+              error: (err) => console.error('Error handling winner:', err),
+            });
             return winner;
           })
         )
