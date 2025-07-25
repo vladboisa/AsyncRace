@@ -4,15 +4,17 @@ import { RouteConfigLoadEnd, RouteConfigLoadStart, Router } from '@angular/route
 import { Observable } from 'rxjs/internal/Observable';
 import { LoaderService } from '../../services/feature/loader.service';
 import { tap } from 'rxjs/internal/operators/tap';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-loader',
   standalone: true,
-  imports: [MatProgressSpinnerModule, AsyncPipe, NgIf],
-  template: ` <div *ngIf="loading$ | async" class="spinner-overlay">
-    <mat-spinner mode="indeterminate" />
-  </div>`,
+  imports: [MatProgressSpinnerModule, AsyncPipe],
+  template: ` @if (loading$ | async) {
+    <div class="spinner-overlay">
+      <mat-spinner mode="indeterminate" />
+    </div>
+  }`,
   styles: `
     .spinner-overlay {
       position: fixed;

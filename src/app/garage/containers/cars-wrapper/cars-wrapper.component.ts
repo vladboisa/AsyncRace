@@ -29,14 +29,13 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
       (startAllCars)="handleStartAllCars()"
       (resetAllCars)="handleResetAllCars()"
     />
-    <ng-container *ngIf="cars$ | async as cars">
-      <section class="cars-wrapper" *ngIf="cars.length > 0; else nothing">
-        <app-cars-card
-          *ngFor="let car of cars; trackBy: trackById"
-          [carSingle]="car"
-          (emittedCar)="handleCar($event)"
-          (deletedCar)="handleDeleteCar($event)"
-        />
+    @if (cars$ | async; as cars) {
+      <section class="cars-wrapper">
+        @for (car of cars; track trackById($index, car)) {
+          <app-cars-card [carSingle]="car" (emittedCar)="handleCar($event)" (deletedCar)="handleDeleteCar($event)" />
+        } @empty {
+          <p style="text-align: center;">No Cars here... Try to enable server</p>
+        }
         <mat-paginator
           class="paginator"
           [length]="totalCarsCount"
@@ -47,10 +46,7 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
         >
         </mat-paginator>
       </section>
-    </ng-container>
-    <ng-template #nothing>
-      <p style="text-align: center;">No Cars here... Try to enable server</p>
-    </ng-template>
+    }
   `,
 })
 export class CarsWrapperComponent implements OnInit {

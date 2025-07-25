@@ -15,11 +15,11 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angul
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-cars-buttons',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, CommonModule],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <section class="cars-buttons">
     <div class="cars-buttons-engine">
