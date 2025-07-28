@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Car } from '../../../../models/api.models';
 import { CarsService } from '../../../services/core/cars/cars.service';
 import { switchMap } from 'rxjs';
@@ -47,8 +47,10 @@ import { switchMap } from 'rxjs';
           [value]="updateCarForm.get('color')?.value"
           (change)="onColorChangeEvent($event, 'update')"
         />
-
-        <button mat-flat-button type="submit" [disabled]="!singleCar || updateCarForm.untouched">Update car</button>
+        untouched {{ updateCarForm.untouched }} dirty- {{ updateCarForm.dirty }} pristine {{ updateCarForm.pristine }}
+        <button mat-flat-button type="submit" [disabled]="!singleCar ? !singleCar : !updateCarForm.dirty">
+          Update car
+        </button>
       </form>
     </div>
     <div class="cars-buttons-generate">
@@ -68,12 +70,12 @@ export class CarsButtonsComponent implements OnChanges {
   @Output() startAllCars = new EventEmitter<void>();
   @Output() resetAllCars = new EventEmitter<void>();
   createCarForm: FormGroup = this.fb.group({
-    name: new FormControl('', { updateOn: 'blur' }),
+    name: new FormControl('', { validators: Validators.minLength(3), updateOn: 'blur' }),
     color: new FormControl('#000', { updateOn: 'blur' }),
   });
 
   updateCarForm: FormGroup = this.fb.group({
-    name: new FormControl('', { updateOn: 'blur' }),
+    name: new FormControl('', { validators: Validators.minLength(3), updateOn: 'blur' }),
     color: new FormControl('#000000', { updateOn: 'blur' }),
   });
 
@@ -85,8 +87,8 @@ export class CarsButtonsComponent implements OnChanges {
   onColorChangeEvent(event: Event, changeEventType: 'update' | 'create'): void {
     const color = (event.target as HTMLInputElement).value;
     const form = changeEventType === 'update' ? this.updateCarForm : this.createCarForm;
-    form.get('color')?.patchValue(color);
-    form.markAsTouched();
+    form.get('color')?.setValue(color);
+    form.markAsDirty();
   }
   onSubmitCreateCar(): void {
     if (this.createCarForm.invalid) {
