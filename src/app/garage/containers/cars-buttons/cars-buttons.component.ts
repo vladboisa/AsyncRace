@@ -47,8 +47,11 @@ import { switchMap } from 'rxjs';
           [value]="updateCarForm.get('color')?.value"
           (change)="onColorChangeEvent($event, 'update')"
         />
-        untouched {{ updateCarForm.untouched }} dirty- {{ updateCarForm.dirty }} pristine {{ updateCarForm.pristine }}
-        <button mat-flat-button type="submit" [disabled]="!singleCar ? !singleCar : !updateCarForm.dirty">
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="!updateCarForm.dirty || updateCarForm.untouched || !singleCar"
+        >
           Update car
         </button>
       </form>
@@ -81,14 +84,18 @@ export class CarsButtonsComponent implements OnChanges {
 
   ngOnChanges({ singleCar }: SimpleChanges): void {
     if (singleCar?.currentValue) {
+      this.updateCarForm.markAsPristine();
       this.updateCarForm.patchValue(singleCar.currentValue);
     }
   }
   onColorChangeEvent(event: Event, changeEventType: 'update' | 'create'): void {
     const color = (event.target as HTMLInputElement).value;
     const form = changeEventType === 'update' ? this.updateCarForm : this.createCarForm;
-    form.get('color')?.setValue(color);
-    form.markAsDirty();
+    if (form.get('color')?.value !== color) {
+      form.get('color')?.setValue(color);
+      form.get('color')?.markAsDirty();
+      form.get('color')?.markAsTouched();
+    }
   }
   onSubmitCreateCar(): void {
     if (this.createCarForm.invalid) {
@@ -103,11 +110,11 @@ export class CarsButtonsComponent implements OnChanges {
   }
 
   onSubmitUpdateCar(): void {
-    if (this.updateCarForm.valid && this.singleCar && this.updateCarForm.touched) {
+    if (this.updateCarForm.valid && this.singleCar && this.updateCarForm.dirty) {
       const updatedCar = { ...this.updateCarForm.value, id: this.singleCar.id } as Car;
       this.carsService.updateCar(updatedCar).subscribe();
     }
-    this.updateCarForm.markAsUntouched();
+    this.updateCarForm.reset();
   }
   generateRandomCars(): void {
     this.carsService
