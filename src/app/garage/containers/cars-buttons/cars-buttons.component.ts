@@ -59,6 +59,9 @@ import { switchMap } from 'rxjs';
     <div class="cars-buttons-generate">
       <button mat-flat-button (click)="generateRandomCars()">Generate cars</button>
     </div>
+    @if (updateCarForm.invalid && (updateCarForm.dirty || updateCarForm.touched)) {
+      <div class="cars-buttons-alerts">asfasfasf</div>
+    }
   </section>`,
   styleUrl: './cars-buttons.component.scss',
 })
