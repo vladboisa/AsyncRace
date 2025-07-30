@@ -6,10 +6,15 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 5px;
-    &-engine,&-create,&-update {
+    &-engine,&-create,&-update,&-generate,&-alerts {
       display: flex;
       gap: 5px;
       align-items: center;
+    }
+    &-alerts {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 }
 
