@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Car } from '../../../../models/api.models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { BehaviorSubject, forkJoin, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
 import { RandomCarsService } from '../../feature/random-cars.service';
 import { defaultHeaders } from '../../../../models/constants';
@@ -18,18 +18,25 @@ export class CarsService {
   private readonly LIMIT_PAGE = 7;
   private readonly DEFAULT_HTTP_HEADERS = new HttpHeaders(defaultHeaders);
   private carsSubject = new BehaviorSubject<Car[]>([]);
+  private carsCache: Car[] = [];
 
   public totalCarsCount = 0;
   public cars$ = this.carsSubject.asObservable();
 
   readAllCars(page: number = 1): Observable<Car[]> {
     const params = defaultParams(page, this.LIMIT_PAGE);
+    if (this.carsCache.length) {
+      return of(this.carsCache);
+    }
     return this.http.get<Car[]>(`${environment.apiGarage}`, { params, observe: 'response' }).pipe(
       map((responseCars) => {
         this.totalCarsCount = Number(responseCars.headers.get('X-Total-Count') || 0);
         return responseCars.body || [];
       }),
-      tap((responseCars) => this.carsSubject.next(responseCars))
+      tap((responseCars) => {
+        this.carsCache = [...responseCars];
+        this.carsSubject.next(responseCars);
+      })
     );
   }
   findCarNameById(id: number | undefined): Observable<string> {
