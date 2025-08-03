@@ -18,15 +18,15 @@ export class CarsService {
   private readonly LIMIT_PAGE = 7;
   private readonly DEFAULT_HTTP_HEADERS = new HttpHeaders(defaultHeaders);
   private carsSubject = new BehaviorSubject<Car[]>([]);
-  private carsCache: Car[] = [];
+  private carsCache = new Map<number, Car[]>();
 
   public totalCarsCount = 0;
   public cars$ = this.carsSubject.asObservable();
 
   readAllCars(page: number = 1): Observable<Car[]> {
     const params = defaultParams(page, this.LIMIT_PAGE);
-    if (this.carsCache.length) {
-      return of(this.carsCache);
+    if (this.carsCache.has(page)) {
+      return of(this.carsCache.get(page) ?? []);
     }
     return this.http.get<Car[]>(`${environment.apiGarage}`, { params, observe: 'response' }).pipe(
       map((responseCars) => {
@@ -34,7 +34,7 @@ export class CarsService {
         return responseCars.body || [];
       }),
       tap((responseCars) => {
-        this.carsCache = [...responseCars];
+        this.carsCache.set(page, [...responseCars]);
         this.carsSubject.next(responseCars);
       })
     );
