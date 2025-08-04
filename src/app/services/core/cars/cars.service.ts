@@ -49,6 +49,7 @@ export class CarsService {
     );
   }
   deleteSingleCar(payloadCar: Car): Observable<object> {
+    //TODO: make caching
     return this.http.delete(`${environment.apiGarage}/${payloadCar?.id}`).pipe(
       tap(() => {
         const updatedCars = this.carsSubject.value.filter((deletedCar) => deletedCar.id !== payloadCar.id);
