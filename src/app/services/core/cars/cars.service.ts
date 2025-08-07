@@ -26,15 +26,17 @@ export class CarsService {
   readAllCars(page: number = 1): Observable<Car[]> {
     const params = defaultParams(page, this.LIMIT_PAGE);
     if (this.carsCache.has(page)) {
+      console.log('cache');
       return of(this.carsCache.get(page) ?? []);
     }
+    console.log('http');
     return this.http.get<Car[]>(`${environment.apiGarage}`, { params, observe: 'response' }).pipe(
       map((responseCars) => {
         this.totalCarsCount = Number(responseCars.headers.get('X-Total-Count') || 0);
         return responseCars.body || [];
       }),
       tap((responseCars) => {
-        this.carsCache.set(page, [...responseCars]);
+        this.carsCache.set(page, responseCars);
         this.carsSubject.next(responseCars);
       })
     );
@@ -79,15 +81,25 @@ export class CarsService {
         headers: this.DEFAULT_HTTP_HEADERS,
       })
       .pipe(
-        tap(() => {
-          const updatedCars = this.carsSubject.value.map((car) => {
-            if (car.id === payloadCar.id) {
-              return { ...car, ...payloadCar };
+        tap(
+          () => {
+            const updatedCars = this.carsSubject.value.map((car) => {
+              if (car.id === payloadCar.id) {
+                return { ...car, ...payloadCar };
+              }
+              return car;
+            });
+            this.carsSubject.next(updatedCars);
+          },
+          tap((updatedCar: Car) => {
+            for (const [page, cars] of this.carsCache.entries()) {
+              if (cars.some((car: Car) => car.id === updatedCar.id)) {
+                this.carsCache.delete(page);
+                break;
+              }
             }
-            return car;
-          });
-          this.carsSubject.next(updatedCars);
-        })
+          })
+        )
       );
   }
   createRandomCars(): Observable<Car[]> {
