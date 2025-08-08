@@ -18,24 +18,25 @@ export class CarsService {
   private readonly LIMIT_PAGE = 7;
   private readonly DEFAULT_HTTP_HEADERS = new HttpHeaders(defaultHeaders);
   private carsSubject = new BehaviorSubject<Car[]>([]);
-  private carsCache = new Map<number, Car[]>();
+  carsCache = new Map<number, Car[]>();
 
   public totalCarsCount = 0;
   public cars$ = this.carsSubject.asObservable();
 
   readAllCars(page: number = 1): Observable<Car[]> {
     const params = defaultParams(page, this.LIMIT_PAGE);
+    console.log(this.carsCache);
     if (this.carsCache.has(page)) {
-      console.log('cache');
+      console.log('cache', this.carsCache.forEach(console.log));
       return of(this.carsCache.get(page) ?? []);
     }
-    console.log('http');
     return this.http.get<Car[]>(`${environment.apiGarage}`, { params, observe: 'response' }).pipe(
       map((responseCars) => {
         this.totalCarsCount = Number(responseCars.headers.get('X-Total-Count') || 0);
         return responseCars.body || [];
       }),
       tap((responseCars) => {
+        console.log('http', responseCars);
         this.carsCache.set(page, responseCars);
         this.carsSubject.next(responseCars);
       })
@@ -51,10 +52,18 @@ export class CarsService {
     );
   }
   deleteSingleCar(payloadCar: Car): Observable<object> {
-    //TODO: make caching
     return this.http.delete(`${environment.apiGarage}/${payloadCar?.id}`).pipe(
       tap(() => {
         const updatedCars = this.carsSubject.value.filter((deletedCar) => deletedCar.id !== payloadCar.id);
+        for (const [page, cars] of this.carsCache.entries()) {
+          const deletedCarIndex = cars.findIndex((car: Car) => car.id === payloadCar.id);
+          if (deletedCarIndex !== -1) {
+            const carsCachecopy = [...cars];
+            carsCachecopy.splice(deletedCarIndex, 1);
+            this.carsCache.set(page, carsCachecopy);
+            break;
+          }
+        }
         this.totalCarsCount -= 1;
         this.carsSubject.next(updatedCars);
       })
@@ -70,6 +79,8 @@ export class CarsService {
           this.totalCarsCount += 1;
           if (this.totalCarsCount > this.LIMIT_PAGE * (currentPage - 1)) {
             this.carsSubject.next([...this.carsSubject.value, newCar]);
+            const currentCacheCars = this.carsCache.get(currentPage);
+            currentCacheCars?.push(newCar);
           }
         }),
         switchMap(() => this.readAllCars(currentPage))
@@ -81,25 +92,24 @@ export class CarsService {
         headers: this.DEFAULT_HTTP_HEADERS,
       })
       .pipe(
-        tap(
-          () => {
-            const updatedCars = this.carsSubject.value.map((car) => {
-              if (car.id === payloadCar.id) {
-                return { ...car, ...payloadCar };
-              }
-              return car;
-            });
-            this.carsSubject.next(updatedCars);
-          },
-          tap((updatedCar: Car) => {
-            for (const [page, cars] of this.carsCache.entries()) {
-              if (cars.some((car: Car) => car.id === updatedCar.id)) {
-                this.carsCache.delete(page);
-                break;
-              }
+        tap((updatedCarFromServer: Car) => {
+          const updatedCars = this.carsSubject.value.map((car) => {
+            if (car.id === payloadCar.id) {
+              return updatedCarFromServer;
             }
-          })
-        )
+            return car;
+          });
+          this.carsSubject.next(updatedCars);
+          for (const [page, cars] of this.carsCache.entries()) {
+            const updatedCarIndex = cars.findIndex((car: Car) => car.id === updatedCarFromServer.id);
+            if (updatedCarIndex !== -1) {
+              const updatedCarsCache = [...cars];
+              updatedCarsCache[updatedCarIndex] = updatedCarFromServer;
+              this.carsCache.set(page, updatedCarsCache);
+              break;
+            }
+          }
+        })
       );
   }
   createRandomCars(): Observable<Car[]> {
