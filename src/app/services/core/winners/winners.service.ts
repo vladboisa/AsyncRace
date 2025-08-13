@@ -25,9 +25,19 @@ export class WinnersService {
   readAllWinners(): Observable<Winner[]> {
     return this.http.get<Winner[]>(`${environment.apiWinners}`).pipe(
       switchMap((responseWinners) => {
-        const winnersWithCarNames$ = responseWinners.map((winner) =>
-          this.carsService.findCarNameById(winner.id).pipe(map((carName: string) => ({ ...winner, name: carName })))
-        );
+        console.log('responsWinn', responseWinners);
+        const winnersWithCarNames$ = responseWinners.map((winner) => {
+          if (winner.name) {
+            return new Observable<Winner>((observer) => {
+              observer.next(winner);
+              observer.complete();
+            });
+          }
+          return this.carsService
+            .findCarNameById(winner.id)
+            .pipe(map((carName: string) => ({ ...winner, name: carName })));
+        });
+        console.log(winnersWithCarNames$.forEach(console.log));
         return forkJoin(winnersWithCarNames$);
       }),
       tap((winnersWithCarNames) => {
