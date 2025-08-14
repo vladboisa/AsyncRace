@@ -112,9 +112,10 @@ export class CarsService {
         })
       );
   }
-  createRandomCars(): Observable<Car[]> {
+  createRandomCars(currentPage: number = 1): Observable<Car[]> {
+    //!TODO: make a createCar with CurrentPage
     const createRequests = this.randomCars.createArrayCars().map((car) => {
-      return this.http.post<Car>(`${environment.apiGarage}`, car, { headers: this.DEFAULT_HTTP_HEADERS });
+      return this.createCar(car, currentPage);
     });
     return forkJoin(createRequests).pipe(
       tap((createdCars) => {
