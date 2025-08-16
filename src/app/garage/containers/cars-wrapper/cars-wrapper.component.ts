@@ -78,6 +78,7 @@ export class CarsWrapperComponent implements OnInit {
       this.totalCarsCount -= 1;
       if (this.totalCarsCount - 1 < (this.CURRENT_PAGE - 1) * this.LIMIT_PAGE) {
         this.CURRENT_PAGE -= 1;
+        this.fetchCars(this.CURRENT_PAGE);
       }
     });
   }

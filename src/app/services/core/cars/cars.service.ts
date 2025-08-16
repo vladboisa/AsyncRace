@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Car } from '../../../../models/api.models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { BehaviorSubject, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, tap, of, switchMap } from 'rxjs';
 import { ErrorsService } from '../../errors.service';
 import { RandomCarsService } from '../../feature/random-cars.service';
 import { defaultHeaders } from '../../../../models/constants';
@@ -25,7 +25,6 @@ export class CarsService {
 
   readAllCars(page: number = 1): Observable<Car[]> {
     const params = defaultParams(page, this.LIMIT_PAGE);
-    console.log(this.carsCache);
     if (this.carsCache.has(page)) {
       console.log('cache', this.carsCache.forEach(console.log));
       return of(this.carsCache.get(page) ?? []);
@@ -69,7 +68,9 @@ export class CarsService {
       })
     );
   }
-  createCar(payloadCar: Car, currentPage: number = 1): Observable<Car[]> {
+  createCar(payloadCar: Car, currentPage: number = 1): any {
+    const updatedCurrentPage = currentPage + 1;
+    //!TODO: refactor to make logic
     return this.http
       .post<Car>(`${environment.apiGarage}`, payloadCar, {
         headers: this.DEFAULT_HTTP_HEADERS,
@@ -77,13 +78,13 @@ export class CarsService {
       .pipe(
         tap((newCar: Car) => {
           this.totalCarsCount += 1;
-          if (this.totalCarsCount > this.LIMIT_PAGE * (currentPage - 1)) {
+          if (this.totalCarsCount > this.LIMIT_PAGE * currentPage) {
             this.carsSubject.next([...this.carsSubject.value, newCar]);
-            const currentCacheCars = this.carsCache.get(currentPage);
+            const currentCacheCars = this.carsCache.get(updatedCurrentPage);
             currentCacheCars?.push(newCar);
           }
         }),
-        switchMap(() => this.readAllCars(currentPage))
+        switchMap(() => this.readAllCars(updatedCurrentPage))
       );
   }
   updateCar(payloadCar: Car): Observable<Car> {
