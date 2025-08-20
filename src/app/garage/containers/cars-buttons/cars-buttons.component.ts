@@ -130,7 +130,6 @@ export class CarsButtonsComponent implements OnChanges {
         take(1),
         tap(() => {
           this.updateTotalCarsCount.emit(this.carsService.totalCarsCount);
-          this.cdRef.markForCheck();
           this.createCarForm.reset({ name: '', color: '#000' });
         })
       )
