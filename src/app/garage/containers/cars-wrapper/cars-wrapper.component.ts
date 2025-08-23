@@ -31,7 +31,7 @@ import { WinnersService } from '../../../services/core/winners/winners.service';
     />
     @if (cars$ | async; as cars) {
       <section class="cars-wrapper">
-        @for (car of cars; track trackById($index, car)) {
+        @for (car of cars | slice: 0 : 7; track trackById($index, car)) {
           <app-cars-card [carSingle]="car" (emittedCar)="handleCar($event)" (deletedCar)="handleDeleteCar($event)" />
         } @empty {
           <p style="text-align: center;">No Cars here... Try to enable server</p>
